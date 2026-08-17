@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 264 48" fill="none">
+  <!-- D -->
+  <text x="0" y="40" font-family="'Arial Black','Arial Bold',Arial,sans-serif" font-weight="900" font-size="40" fill="#E8001D" letter-spacing="-0.5">D</text>
+  <!-- A (first) — rendered separately so we can overlay the dot -->
+  <text x="27" y="40" font-family="'Arial Black','Arial Bold',Arial,sans-serif" font-weight="900" font-size="40" fill="#E8001D" letter-spacing="-0.5">A</text>
+  <!-- Dot inside the A counter -->
+  <circle cx="42" cy="20" r="4" fill="#E8001D"/>
+  <!-- TIA -->
+  <text x="55" y="40" font-family="'Arial Black','Arial Bold',Arial,sans-serif" font-weight="900" font-size="40" fill="#E8001D" letter-spacing="-0.5">TIA</text>
+  <!-- Vertical separator -->
+  <rect x="144" y="2" width="3" height="44" rx="1" fill="#E8001D"/>
+  <!-- K12 -->
+  <text x="152" y="40" font-family="'Arial Black','Arial Bold',Arial,sans-serif" font-weight="900" font-size="40" fill="#E8001D" letter-spacing="-0.5">K12</text>
+</svg>
