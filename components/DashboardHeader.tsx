@@ -50,13 +50,13 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 py-3 mb-4">
       <div className="relative flex items-center">
-        {/* Left: Learning Without Fears wordmark */}
+        {/* Left: Learning Without Tears wordmark */}
         <div className="flex-shrink-0 flex items-center gap-4">
           <span
             className="font-extrabold text-gray-900"
             style={{ fontSize: "22px", letterSpacing: "-0.01em" }}
           >
-            Learning Without Fears
+            Learning Without Tears
           </span>
           {/* Vertical divider */}
           <div className="self-stretch w-px bg-gray-200 shrink-0" />

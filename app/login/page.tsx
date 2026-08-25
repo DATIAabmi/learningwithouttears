@@ -85,7 +85,7 @@ function LoginForm() {
           {/* Logo */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28 }}>
             <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.01em", color: "#111827" }}>
-              Learning Without Fears
+              Learning Without Tears
             </span>
             <div style={{ height: 2, width: 48, background: "#ef4444", borderRadius: 2, marginTop: 14 }} />
             <p style={{ marginTop: 10, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b7280" }}>
@@ -188,7 +188,7 @@ function LoginForm() {
         </div>
 
         <p style={{ marginTop: 20, textAlign: "center", fontSize: 11, color: "#475569" }}>
-          DATIA K12 · Powered by Learning Without Fears
+          DATIA K12 · Powered by Learning Without Tears
         </p>
       </div>
     </div>
