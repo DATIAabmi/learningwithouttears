@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 const SESSION_COOKIE = "__ras_session";
-const PUBLIC_PREFIXES = ["/login", "/api/auth/", "/api/warm-cache"];
+const PUBLIC_PREFIXES = ["/login", "/api/auth/", "/api/warm-cache", "/sso/metabase"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
