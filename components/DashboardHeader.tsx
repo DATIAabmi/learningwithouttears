@@ -58,7 +58,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
             alt="Learning Without Tears"
             width={252}
             height={148}
-            style={{ height: "56px", width: "auto" }}
+            style={{ height: "67px", width: "auto" }}
             className="object-contain"
           />
           {/* Vertical divider */}
