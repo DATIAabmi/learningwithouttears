@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { Suspense } from "react";
 import { DEFAULT_CAMPAIGN } from "@/lib/campaigns";
 
@@ -84,9 +85,13 @@ function LoginForm() {
         }}>
           {/* Logo */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28 }}>
-            <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.01em", color: "#111827" }}>
-              Learning Without Tears
-            </span>
+            <Image
+              src="/learning-without-tears-logo.png"
+              alt="Learning Without Tears"
+              width={252}
+              height={148}
+              style={{ height: 64, width: "auto", objectFit: "contain" }}
+            />
             <div style={{ height: 2, width: 48, background: "#ef4444", borderRadius: 2, marginTop: 14 }} />
             <p style={{ marginTop: 10, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b7280" }}>
               Analytics Portal

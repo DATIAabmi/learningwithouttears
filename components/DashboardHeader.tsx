@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { CalendarSearch, X, RotateCcw, LogOut, FileSpreadsheet, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -50,14 +51,16 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 py-3 mb-4">
       <div className="relative flex items-center">
-        {/* Left: Learning Without Tears wordmark */}
+        {/* Left: Learning Without Tears logo */}
         <div className="flex-shrink-0 flex items-center gap-4">
-          <span
-            className="font-extrabold text-gray-900"
-            style={{ fontSize: "22px", letterSpacing: "-0.01em" }}
-          >
-            Learning Without Tears
-          </span>
+          <Image
+            src="/learning-without-tears-logo.png"
+            alt="Learning Without Tears"
+            width={252}
+            height={148}
+            style={{ height: "56px", width: "auto" }}
+            className="object-contain"
+          />
           {/* Vertical divider */}
           <div className="self-stretch w-px bg-gray-200 shrink-0" />
         </div>
