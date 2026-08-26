@@ -201,6 +201,10 @@ function GatedContentTable({ campaign, dateStart, dateEnd }: { campaign: string[
     setSort((s) => ({ col, dir: s.col === col && s.dir === "desc" ? "asc" : "desc" }));
   }
 
+  const totalImpressions = rows.reduce((s, r) => s + (Number(r[3]) || 0), 0);
+  const totalClicks = rows.reduce((s, r) => s + (Number(r[4]) || 0), 0);
+  const totalCtr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) + "%" : "—";
+
   return (
     <div className="rounded-xl border border-gray-200 shadow-sm" style={{ clipPath: "inset(0 round 0.75rem)" }}>
       <div ref={titleBarRef} className="sticky top-0 z-20 bg-gray-900 text-white px-5 py-3">
@@ -263,6 +267,15 @@ function GatedContentTable({ campaign, dateStart, dateEnd }: { campaign: string[
                 </tr>
               ))}
             </tbody>
+            <tfoot>
+              <tr className="border-t-2 border-gray-300 bg-gray-50">
+                <td className="px-4 py-3" />
+                <td className="px-4 py-3 font-bold text-gray-900">Grand Total</td>
+                <td className="px-4 py-3 text-right tabular-nums font-bold text-gray-900 whitespace-nowrap">{fmtNum(totalImpressions)}</td>
+                <td className="px-4 py-3 text-right tabular-nums font-bold text-gray-900 whitespace-nowrap">{fmtNum(totalClicks)}</td>
+                <td className="px-4 py-3 text-right tabular-nums font-bold text-gray-900 whitespace-nowrap">{totalCtr}</td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       )}
