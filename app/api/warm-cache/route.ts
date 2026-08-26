@@ -10,7 +10,7 @@ export async function GET() {
     : "http://localhost:3000";
 
   try {
-    const DEFAULT = "C6%3A%20April%20-%20May%202026"; // URL-encoded DEFAULT_CAMPAIGN
+    const DEFAULT = "C1%3A%20August%20-%20November%202026"; // URL-encoded DEFAULT_CAMPAIGN
     const results = await Promise.all([
       fetch(`${base}/api/funnel-data?campaign=${DEFAULT}`,   { cache: "no-store" }),
       fetch(`${base}/api/q363-data?campaign=${DEFAULT}`,     { cache: "no-store" }),
