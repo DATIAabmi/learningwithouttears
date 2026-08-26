@@ -97,13 +97,13 @@ function AdSamplesEmbed() {
   }, []);
 
   const params: Record<string, string | string[]> = {
-    abmi_campaign_: campaign,
     channel: "",
     district: "",
     job_function: "",
     select_date_range: "",
     state: "",
     topic: "",
+    ...(campaign.length > 0 ? { abmi_campaign_: campaign } : {}),
   };
 
   useEffect(() => {
