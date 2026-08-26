@@ -289,10 +289,10 @@ export default function DashboardEmbed({
     ...(dateParamSlug && metabaseDateRange
       ? { [dateParamSlug]: metabaseDateRange }
       : {}),
-    ...(campaignParamSlug && campaign
+    ...(campaignParamSlug && campaign.length > 0
       ? { [campaignParamSlug]: campaign }
       : {}),
-    ...(districtParamSlug && district
+    ...(districtParamSlug && district.length > 0
       ? { [districtParamSlug]: district }
       : {}),
   };
