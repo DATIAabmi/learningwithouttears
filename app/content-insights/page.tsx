@@ -8,7 +8,8 @@ import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type GatedRow = [string, string, string, number | string, number | string, string];
+// Card 605 columns: Image, Asset Name, Asset Link, Campaign, Impressions, Clicks, CTR
+type GatedRow = [string, string, string, string, number | string, number | string, string];
 type ChannelBreakdownRow = [string, number, number, number | string];
 type ChannelClickRow = [string, number, number];
 
@@ -150,7 +151,7 @@ function GatedContentTable({ campaign, dateStart, dateEnd }: { campaign: string[
   const [rows, setRows] = useState<GatedRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [sort, setSort] = useState<SortState>({ col: 3, dir: "desc" });
+  const [sort, setSort] = useState<SortState>({ col: 4, dir: "desc" });
 
   const titleBarRef = useRef<HTMLDivElement>(null);
   const [titleBarHeight, setTitleBarHeight] = useState(0);
@@ -182,9 +183,9 @@ function GatedContentTable({ campaign, dateStart, dateEnd }: { campaign: string[
   const HEADERS = [
     { label: "Image",             col: -1 },
     { label: "Asset Name & Link", col: 1 },
-    { label: "Impressions",       col: 3 },
-    { label: "Clicks",            col: 4 },
-    { label: "CTR",               col: 5 },
+    { label: "Impressions",       col: 4 },
+    { label: "Clicks",            col: 5 },
+    { label: "CTR",               col: 6 },
   ];
 
   const sorted = [...rows].sort((a, b) => {
@@ -201,8 +202,8 @@ function GatedContentTable({ campaign, dateStart, dateEnd }: { campaign: string[
     setSort((s) => ({ col, dir: s.col === col && s.dir === "desc" ? "asc" : "desc" }));
   }
 
-  const totalImpressions = rows.reduce((s, r) => s + (Number(r[3]) || 0), 0);
-  const totalClicks = rows.reduce((s, r) => s + (Number(r[4]) || 0), 0);
+  const totalImpressions = rows.reduce((s, r) => s + (Number(r[4]) || 0), 0);
+  const totalClicks = rows.reduce((s, r) => s + (Number(r[5]) || 0), 0);
   const totalCtr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) + "%" : "—";
 
   return (
@@ -226,9 +227,9 @@ function GatedContentTable({ campaign, dateStart, dateEnd }: { campaign: string[
               <tr className="border-b border-gray-200">
                 {HEADERS.map((h) => (
                   <th key={h.label} onClick={() => handleSort(h.col)}
-                    className={`sticky z-10 bg-white px-4 py-3 font-semibold whitespace-nowrap select-none border-b border-gray-200 ${h.col >= 0 ? "cursor-pointer hover:opacity-70" : ""} ${h.col >= 3 ? "text-right" : "text-left"}`}
+                    className={`sticky z-10 bg-white px-4 py-3 font-semibold whitespace-nowrap select-none border-b border-gray-200 ${h.col >= 0 ? "cursor-pointer hover:opacity-70" : ""} ${h.col >= 4 ? "text-right" : "text-left"}`}
                     style={{ color: "#111827", top: titleBarHeight }}>
-                    <span className={`inline-flex items-center gap-1 ${h.col >= 3 ? "justify-end" : "justify-start"}`}>
+                    <span className={`inline-flex items-center gap-1 ${h.col >= 4 ? "justify-end" : "justify-start"}`}>
                       {h.label}
                       {h.col >= 0 && (
                         sort.col === h.col
@@ -261,9 +262,9 @@ function GatedContentTable({ campaign, dateStart, dateEnd }: { campaign: string[
                       <span className="text-gray-800 font-medium">{String(row[1] ?? "")}</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-gray-800 whitespace-nowrap">{fmtNum(row[3])}</td>
                   <td className="px-4 py-3 text-right tabular-nums text-gray-800 whitespace-nowrap">{fmtNum(row[4])}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-gray-800 whitespace-nowrap">{String(row[5] ?? "")}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-gray-800 whitespace-nowrap">{fmtNum(row[5])}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-gray-800 whitespace-nowrap">{String(row[6] ?? "")}</td>
                 </tr>
               ))}
             </tbody>
