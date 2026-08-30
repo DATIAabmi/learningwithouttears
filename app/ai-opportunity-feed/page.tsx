@@ -15,31 +15,24 @@ function chipStyle(label: string): React.CSSProperties {
   return { background: "#F3F4F6", color: "#374151", border: "1px solid #E5E7EB" };
 }
 
-// Columns handled explicitly as grid cells or excluded from chips
+// Columns handled explicitly as grid cells or excluded from chips.
+// Matches the real ai_signals table schema (see /api/table/390/query_metadata):
+// Internal Customer Id, District, Domain, State, Campaign #, Date,
+// Currated Search Term, Category Tags, Source Tags, Source Link,
+// Signal Context, Strength, Amount, Enrollment, Nces ID
 const PRIMARY_COLS = new Set([
-  "Signal Strength",
-  "Action",
-  "Ai Analysis",
-  "City",
-  "County",
+  "Internal Customer Id",
+  "Strength",
+  "Signal Context",
   "Amount",
-  "Confidence",
-  "Verified Source Link",
-  "Run Date",
+  "Source Link",
   "Source Tags",
   "District",
   "Domain",
   "State",
-  "Campaign",
-  "Sbm Link",
-  "Sbm Date",
-  "Sbm Context",
-  "Nces ID",
-  "Enrollment",
-  "Curate Search Term",
+  "Campaign #",
+  "Date",
 ]);
-
-const TOPICS = ["Security & Access Control", "Construction & Renovation", "Safety Grants & Funding"];
 
 function strengthColor(s: unknown): { bg: string; text: string } {
   const v = typeof s === "number" ? s : 0;
@@ -82,7 +75,6 @@ export default function AIOpportunityFeed() {
   const [tagCols, setTagCols] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
-  const [filterTopic,    setFilterTopic]    = useState<string[]>([]);
   const [filterCategory, setFilterCategory] = useState<string[]>([]);
   const [filterSource,   setFilterSource]   = useState<string[]>([]);
   const [searchText,     setSearchText]     = useState("");
@@ -118,15 +110,14 @@ export default function AIOpportunityFeed() {
 
   const q = searchText.trim().toLowerCase();
   const filtered = rows.filter((r) => {
-    if (!r["Ai Analysis"] || !r["Signal Strength"]) return false;
-    if (filterTopic.length    && !filterTopic.includes((r.Topic as string) ?? ""))               return false;
+    if (!r["Signal Context"] || r["Strength"] == null) return false;
     if (filterCategory.length && !filterCategory.includes((r["Category Tags"] as string) ?? "")) return false;
     if (filterSource.length   && !filterSource.includes((r["Source Tags"] as string) ?? ""))     return false;
     if (q) {
       const haystack = [
-        r["AI Analysis"], r.District, r.State, r.Campaign,
+        r["Signal Context"], r.District, r.State, r["Campaign #"],
         r["Source Tags"], r["Category Tags"],
-        extractDomain(r["Verified Source Link"] as string),
+        extractDomain(r["Source Link"] as string),
       ].map((v) => String(v ?? "").toLowerCase()).join(" ");
       if (!haystack.includes(q)) return false;
     }
@@ -157,7 +148,6 @@ export default function AIOpportunityFeed() {
           </div>
           <MultiSelectDropdown label="Category" value={filterCategory} onChange={setFilterCategory} options={categoryOptions} />
           <MultiSelectDropdown label="Source"   value={filterSource}   onChange={setFilterSource}   options={sourceOptions} />
-          <MultiSelectDropdown label="Topic"    value={filterTopic}    onChange={setFilterTopic}    options={TOPICS} />
         </div>
       </div>
 
@@ -215,9 +205,9 @@ export default function AIOpportunityFeed() {
               <div className="flex items-center justify-center h-40 text-gray-400 text-sm">No signals match filters</div>
             ) : (
               filtered.map((row, i) => {
-                const sc     = strengthColor(row["Signal Strength"]);
+                const sc     = strengthColor(row["Strength"]);
                 const amount = fmtAmount(row["Amount"]);
-                const link   = (row["Verified Source Link"] as string | null) || (row["Sbm Link"] as string | null);
+                const link   = row["Source Link"] as string | null;
                 const domain = (row["Domain"] as string) || extractDomain(link);
 
                 const chips = tagCols
@@ -263,12 +253,12 @@ export default function AIOpportunityFeed() {
 
                     {/* Campaign */}
                     <div className="text-xs text-gray-600 leading-snug" style={{ paddingTop: 4 }}>
-                      {(row.Campaign as string) || "—"}
+                      {(row["Campaign #"] as string) || "—"}
                     </div>
 
                     {/* Date */}
                     <div className="text-xs text-gray-500 tabular-nums" style={{ paddingTop: 4 }}>
-                      {fmtDate(row["Run Date"])}
+                      {fmtDate(row["Date"])}
                     </div>
 
                     {/* Source */}
@@ -276,10 +266,10 @@ export default function AIOpportunityFeed() {
                       {(row["Source Tags"] as string) || "—"}
                     </div>
 
-                    {/* Signal Context (AI Analysis) + chips */}
+                    {/* Signal Context + chips */}
                     <div style={{ paddingTop: 3 }}>
                       <div className="text-xs text-gray-800 leading-relaxed break-words whitespace-normal">
-                        {(row["Ai Analysis"] as string) ?? "—"}
+                        {(row["Signal Context"] as string) ?? "—"}
                       </div>
                       {chips.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
@@ -313,7 +303,7 @@ export default function AIOpportunityFeed() {
                         background: sc.bg, color: sc.text,
                         fontSize: 15, fontWeight: 800, fontVariantNumeric: "tabular-nums",
                       }}>
-                        {(row["Signal Strength"] as number) ?? "—"}
+                        {(row["Strength"] as number) ?? "—"}
                       </span>
                     </div>
                   </div>

@@ -6,9 +6,11 @@ export const maxDuration = 60;
 const METABASE_URL = process.env.NEXT_PUBLIC_METABASE_URL!;
 const API_KEY = process.env.METABASE_ADMIN_API_KEY!;
 
-// ai_signals table in "My First Project" database — has District, Domain, State, Campaign
+// ai_signals table in "My First Project" database — shared across clients,
+// scoped per-client via Internal Customer Id. 3 = Learning Without Tears.
 const DB_ID    = 67;
 const TABLE_ID = 390;
+const CUSTOMER_ID = 3;
 
 interface SignalCache { rows: Record<string, unknown>[]; columns: string[]; }
 let memCache: SignalCache | null = null;
@@ -24,7 +26,10 @@ async function fetchSignals(): Promise<SignalCache> {
     body: JSON.stringify({
       database: DB_ID,
       type: "query",
-      query: { "source-table": TABLE_ID },
+      query: {
+        "source-table": TABLE_ID,
+        filter: ["=", ["field", "Internal Customer Id", { "base-type": "type/Integer" }], CUSTOMER_ID],
+      },
     }),
     cache: "no-store",
   });
