@@ -54,8 +54,13 @@ export async function POST(request: NextRequest) {
     const res = await fetch(`${METABASE_URL}/api/user/current`, {
       headers: { "X-Metabase-Session": mbSessionToken },
     });
+    if (!res.ok) {
+      console.error("login: /api/user/current failed", res.status, await res.text().catch(() => ""));
+      return NextResponse.json({ error: "Could not fetch user info" }, { status: 502 });
+    }
     user = await res.json();
-  } catch {
+  } catch (err) {
+    console.error("login: /api/user/current threw", err);
     return NextResponse.json({ error: "Could not fetch user info" }, { status: 502 });
   }
 
@@ -67,9 +72,13 @@ export async function POST(request: NextRequest) {
       const res = await fetch(`${METABASE_URL}/api/permissions/group`, {
         headers: { "x-api-key": process.env.METABASE_ADMIN_API_KEY! },
       });
+      if (!res.ok) {
+        console.error("login: /api/permissions/group failed", res.status, await res.text().catch(() => ""));
+        return NextResponse.json({ error: "Could not verify group membership" }, { status: 502 });
+      }
       const allGroups: MbGroup[] = await res.json();
 
-      const userGroupIds = new Set(user.user_group_memberships.map((m) => m.id));
+      const userGroupIds = new Set((user.user_group_memberships ?? []).map((m) => m.id));
       groupNames = allGroups
         .filter((g) => userGroupIds.has(g.id))
         .map((g) => g.name);
@@ -80,7 +89,8 @@ export async function POST(request: NextRequest) {
           { status: 403 }
         );
       }
-    } catch {
+    } catch (err) {
+      console.error("login: group verification threw", err);
       return NextResponse.json({ error: "Could not verify group membership" }, { status: 502 });
     }
   }
