@@ -105,9 +105,11 @@ function ClicksDonutChart({ rows }: { rows: ChannelClickRow[] }) {
   });
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Channel Performance By Clicks</p>
-      <div className="flex items-center gap-8 w-full">
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-gray-900 text-white px-5 py-3">
+        <span className="font-bold text-sm tracking-wide uppercase">Channel Performance By Clicks</span>
+      </div>
+      <div className="flex items-center gap-8 w-full p-4">
         <div className="shrink-0">
           <svg viewBox="0 0 200 200" width={180} height={180}>
             <circle cx={CX} cy={CY} r={R} fill="none" stroke="#f3f4f6" strokeWidth={SW} />
