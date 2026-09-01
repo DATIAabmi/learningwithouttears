@@ -60,7 +60,7 @@ export default function Sidebar() {
           priority
         />
         <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase mt-2">
-          Analytics Portal
+          Intelligence Dashboard
         </p>
       </div>
 
