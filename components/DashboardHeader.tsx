@@ -71,7 +71,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
             className="font-bold text-gray-900 leading-tight"
             style={{ fontFamily: "'Lato', sans-serif", fontSize: "30px", letterSpacing: "-0.5px" }}
           >
-            ABMi Always On
+            ABMi
           </h1>
           <p className="mt-1 font-medium" style={{ fontSize: "12px", color: "#6b8cba" }}>
             {subtitle}
