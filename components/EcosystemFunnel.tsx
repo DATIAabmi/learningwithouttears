@@ -130,7 +130,7 @@ export default function EcosystemFunnel() {
       value: fmt(data.engagedUsers),
     },
     {
-      label: "Leads",
+      label: "Downloads",
       description: "Qualified leads generated across all channels",
       goal: `Goal: ${goals.leads.toLocaleString()} Leads`,
       value: fmt(data.leads),
