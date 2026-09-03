@@ -1,10 +1,44 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
-import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink, Loader2 } from "lucide-react";
+import { createPortal } from "react-dom";
+import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink, Info, Loader2, X } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
+
+// ─── Metric Description modal ──────────────────────────────────────────────────
+
+const METRIC_DESCRIPTION =
+  "The below table shows the level of engagement for each content asset used in the ABMi 100 program by Impressions (from campaign efforts), Clicks (clicks from campaign efforts), and CTR (Clicks/Impressions). The table can be sorted by clicking any column header. Clicking on the asset name to filter entire page, click asset name again to remove filter or click Reset to remove all filters.";
+
+function MetricDescriptionModal({ onClose }: { onClose: () => void }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}
+      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)" }} />
+      <div
+        style={{ position: "relative", background: "#fff", borderRadius: 16, boxShadow: "0 20px 60px rgba(0,0,0,0.18)", border: "1px solid #f0f0f0", padding: 24, maxWidth: 440, width: "calc(100% - 32px)" }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <span style={{ fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Metric Description</span>
+          <button type="button" onClick={onClose} style={{ color: "#9ca3af", cursor: "pointer", background: "none", border: "none", padding: 0 }}>
+            <X size={16} />
+          </button>
+        </div>
+        <p style={{ fontSize: 12, color: "#4b5563", lineHeight: 1.6 }}>{METRIC_DESCRIPTION}</p>
+      </div>
+    </div>,
+    document.body
+  );
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -293,6 +327,7 @@ export default function Page() {
   const [data, setData] = useState<ContentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterChannel, setFilterChannel] = useState<string[]>([]);
+  const [showDefs, setShowDefs] = useState(false);
 
   const fetchData = useCallback(() => {
     setLoading(true);
@@ -349,7 +384,17 @@ export default function Page() {
             options={availableChannels}
             minWidth={160}
           />
+          <button
+            type="button"
+            onClick={() => setShowDefs(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-400 rounded-lg bg-white transition-colors shrink-0"
+          >
+            <Info size={13} />
+            Metric Description
+          </button>
         </div>
+
+        {showDefs && <MetricDescriptionModal onClose={() => setShowDefs(false)} />}
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 24px 24px" }}>
