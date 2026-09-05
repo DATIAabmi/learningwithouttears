@@ -131,7 +131,7 @@ export default function EcosystemFunnel() {
     },
     {
       label: "Downloads",
-      description: "Qualified leads generated across all channels",
+      description: "Unique content downloads by contacts",
       goal: `Goal: ${goals.leads.toLocaleString()} Leads`,
       value: fmt(data.leads),
       goalValue: computePct(data.leads, goals.leads),
