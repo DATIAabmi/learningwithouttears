@@ -41,12 +41,18 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
     }
   }
 
+  // With only one campaign to date, "nothing selected" and "C1 selected" mean the
+  // same thing — show C1 as selected instead of an ambiguous "All Campaigns".
+  // Once a second campaign exists this naturally falls back to real All/multi-select
+  // behavior; the underlying filter state stays untouched (still no filter applied).
+  const displayCampaign = campaign.length > 0 || CAMPAIGNS.length !== 1 ? campaign : CAMPAIGNS;
+
   const subtitle =
-    campaign.length === 0
+    displayCampaign.length === 0
       ? "All Campaigns"
-      : campaign.length === 1
-      ? campaignDateRange(campaign[0])
-      : `${campaign.length} Campaigns Selected`;
+      : displayCampaign.length === 1
+      ? campaignDateRange(displayCampaign[0])
+      : `${displayCampaign.length} Campaigns Selected`;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 py-3 mb-4">
@@ -84,7 +90,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
       <div className="mt-2 pt-2 border-t border-gray-100 flex items-center gap-2 flex-wrap">
         <MultiSelectDropdown
           label="ABMi Campaign"
-          value={campaign}
+          value={displayCampaign}
           onChange={setCampaign}
           options={[...CAMPAIGNS]}
           minWidth={220}
