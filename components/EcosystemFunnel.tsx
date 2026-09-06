@@ -140,28 +140,44 @@ export default function EcosystemFunnel() {
 
   return (
     <div className="w-full py-4 px-2">
+      {/*
+        Below the `ef-wide` breakpoint there isn't enough room for the
+        staircase-indent + fixed-width card layout — the description column
+        collapses to almost nothing and text wraps to one word per line.
+        Below that width, rows stack (description on top, metric card below,
+        both full-width) instead of sitting side by side.
+      */}
+      <style>{`
+        .ef-row { display: flex; flex-direction: column; }
+        .ef-indent { display: none; }
+        .ef-chevron { border-radius: 6px; clip-path: none !important; padding-right: 16px !important; }
+        .ef-card { width: 100% !important; border-radius: 6px; margin-top: 6px; display: flex; flex-direction: column; }
+        .ef-card-goal { width: 100%; border-top: 1px solid #374151; padding-top: 6px; margin-top: 6px; }
+        @media (min-width: 860px) {
+          .ef-row { flex-direction: row; align-items: stretch; }
+          .ef-indent { display: block; }
+          .ef-chevron { border-radius: 0; }
+          .ef-chevron.ef-notlast { clip-path: polygon(0 0, 100% 0, calc(100% - 30px) 100%, 0 100%) !important; padding-right: 44px !important; }
+          .ef-chevron.ef-islast { border-radius: 6px 0 0 6px; padding-right: 28px !important; }
+          .ef-card { width: ${CARD_W}px !important; margin-top: 0; border-radius: 0; flex-direction: row; align-items: center; }
+          .ef-card.ef-islast { border-radius: 0 6px 6px 0; }
+          .ef-card-goal { width: auto; min-width: 72px; border-top: none; border-left: 1px solid #374151; padding-top: 0; padding-left: 8px; margin-top: 0; }
+        }
+      `}</style>
       <div className="flex flex-col gap-1.5">
         {stages.map((stage, i) => {
           const indent = i * STEP;
           const isLast = i === stages.length - 1;
 
           return (
-            <div key={stage.label} className="flex items-stretch" style={{ minHeight: ROW_H }}>
-              {/* Staircase spacer */}
-              <div style={{ width: indent, flexShrink: 0 }} />
+            <div key={stage.label} className="ef-row" style={{ minHeight: ROW_H }}>
+              {/* Staircase spacer (wide layout only) */}
+              <div className="ef-indent" style={{ width: indent, flexShrink: 0 }} />
 
               {/* Gray chevron */}
               <div
-                className="flex flex-col justify-center pl-8 bg-gray-200"
-                style={{
-                  flex: 1,
-                  minWidth: 0,
-                  paddingRight: isLast ? 28 : 44,
-                  clipPath: isLast
-                    ? "none"
-                    : "polygon(0 0, 100% 0, calc(100% - 30px) 100%, 0 100%)",
-                  borderRadius: isLast ? "6px 0 0 6px" : undefined,
-                }}
+                className={`ef-chevron flex flex-col justify-center pl-8 bg-gray-200 ${isLast ? "ef-islast" : "ef-notlast"}`}
+                style={{ flex: 1, minWidth: 0 }}
               >
                 <h3
                   className="font-black text-gray-900 leading-none"
@@ -181,13 +197,8 @@ export default function EcosystemFunnel() {
 
               {/* Dark metric card */}
               <div
-                className="bg-gray-950 text-white shrink-0 flex items-center"
-                style={{
-                  width: CARD_W,
-                  borderRadius: isLast ? "0 6px 6px 0" : undefined,
-                  padding: "0 16px",
-                  gap: stage.goalValue ? 10 : 0,
-                }}
+                className={`ef-card bg-gray-950 text-white shrink-0 ${isLast ? "ef-islast" : ""}`}
+                style={{ padding: "10px 16px", gap: stage.goalValue ? 10 : 0 }}
               >
                 {/* Primary metric */}
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -205,12 +216,12 @@ export default function EcosystemFunnel() {
                   </span>
                 </div>
 
-                {/* % to Goal column */}
+                {/* % to Goal column — stacks below the primary metric on
+                    narrow cards (not enough width to sit side by side
+                    without the label overflowing), sits beside it once the
+                    card is wide enough (ef-wide breakpoint). */}
                 {stage.goalValue && (
-                  <div
-                    className="shrink-0 border-l border-gray-700 flex flex-col"
-                    style={{ paddingLeft: 8, minWidth: 72 }}
-                  >
+                  <div className="ef-card-goal shrink-0 flex flex-col">
                     <span
                       className="block uppercase tracking-widest text-gray-400 font-semibold"
                       style={{ fontSize: 9, marginBottom: 2 }}
