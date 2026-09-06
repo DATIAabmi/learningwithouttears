@@ -230,18 +230,6 @@ export default function EcosystemFunnel() {
           );
         })}
       </div>
-
-      {/* Funnel tip triangle */}
-      <div className="flex justify-end">
-        <div
-          className="bg-gray-950"
-          style={{
-            width: CARD_W,
-            height: 20,
-            clipPath: "polygon(15% 0, 85% 0, 50% 100%)",
-          }}
-        />
-      </div>
     </div>
   );
 }
