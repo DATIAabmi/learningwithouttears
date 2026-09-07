@@ -37,7 +37,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-7 bg-gray-900 rounded-sm shrink-0" />
             <span className="text-sm font-bold tracking-widest uppercase text-gray-800">
-              Channel Performance By Engagements
+              Engagement By Channel
             </span>
           </div>
           <ChannelPerformanceChart
