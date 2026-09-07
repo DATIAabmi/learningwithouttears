@@ -131,7 +131,7 @@ export default function EcosystemFunnel() {
     },
     {
       label: "Leads",
-      description: "Content downloads by personas",
+      description: "Content downloads by target personas",
       goal: `Goal: ${goals.leads.toLocaleString()} Downloads`,
       value: fmt(data.leads),
       goalValue: computePct(data.leads, goals.leads),
