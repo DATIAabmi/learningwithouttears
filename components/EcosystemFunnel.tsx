@@ -110,7 +110,7 @@ export default function EcosystemFunnel() {
     {
       label: "Impressions",
       description: "Total times ads were displayed",
-      goal: `Impression Goal: ${goals.impressions.toLocaleString()}`,
+      goal: `Goal: ${goals.impressions.toLocaleString()} Impressions`,
       value: fmt(data.impressions),
       goalValue: computePct(data.impressions, goals.impressions),
     },
