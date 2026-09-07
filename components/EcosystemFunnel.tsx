@@ -34,6 +34,8 @@ interface FunnelData {
 
 interface Stage {
   label: string;
+  /** Shorter form shown in the dark metric card; falls back to `label`. */
+  shortLabel?: string;
   description: string;
   goal?: string;
   value: string;
@@ -121,11 +123,13 @@ export default function EcosystemFunnel() {
     },
     {
       label: "Click-Through Rate (CTR)",
+      shortLabel: "CTR",
       description: "Percentage of impressions that generated a click",
       value: fmt(data.ctr),
     },
     {
       label: "Unique Engaged Users (UEU)",
+      shortLabel: "UEU",
       description: "Unique individuals who engaged",
       value: fmt(data.engagedUsers),
     },
@@ -206,7 +210,7 @@ export default function EcosystemFunnel() {
                     className="block uppercase tracking-widest text-gray-400 font-semibold"
                     style={{ fontSize: 11, marginBottom: 2 }}
                   >
-                    {stage.label}
+                    {stage.shortLabel ?? stage.label}
                   </span>
                   <span
                     className="block font-black text-white tabular-nums"
