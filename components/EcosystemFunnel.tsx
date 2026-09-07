@@ -120,12 +120,12 @@ export default function EcosystemFunnel() {
       value: fmt(data.engagements),
     },
     {
-      label: "CTR",
+      label: "Click-Through Rate (CTR)",
       description: "Percentage of impressions that generated a click",
       value: fmt(data.ctr),
     },
     {
-      label: "UEU",
+      label: "Unique Engaged Users (UEU)",
       description: "Unique individuals who engaged",
       value: fmt(data.engagedUsers),
     },
