@@ -155,7 +155,7 @@ export default function AIOpportunityFeed() {
         {/* Title bar */}
         <div ref={titleBarRef} className="sticky top-0 z-20 bg-gray-900 text-white px-5 py-3 rounded-t-xl flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="font-bold text-sm tracking-wide uppercase">AI Opportunity Signals</span>
+            <span className="font-bold text-sm tracking-wide uppercase">Account Intelligence</span>
             {!loading && <span className="text-gray-400 text-xs">{filtered.length.toLocaleString()} signals</span>}
           </div>
           {!loading && filtered.length > 0 && (
