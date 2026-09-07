@@ -120,12 +120,12 @@ export default function EcosystemFunnel() {
       value: fmt(data.engagements),
     },
     {
-      label: "Click-Through Rate (CTR)",
+      label: "CTR",
       description: "Percentage of impressions that generated a click",
       value: fmt(data.ctr),
     },
     {
-      label: "Unique Engaged Users (UEU)",
+      label: "UEU",
       description: "Unique individuals who engaged",
       value: fmt(data.engagedUsers),
     },
@@ -216,7 +216,7 @@ export default function EcosystemFunnel() {
                   </span>
                 </div>
 
-                {/* % to Goal column — stacks below the primary metric on
+                {/* % of Goal column — stacks below the primary metric on
                     narrow cards (not enough width to sit side by side
                     without the label overflowing), sits beside it once the
                     card is wide enough (ef-wide breakpoint). */}
@@ -226,7 +226,7 @@ export default function EcosystemFunnel() {
                       className="block uppercase tracking-widest text-gray-400 font-semibold"
                       style={{ fontSize: 9, marginBottom: 2 }}
                     >
-                      % to Goal
+                      % of Goal
                     </span>
                     <span
                       className="block font-black text-white tabular-nums"
