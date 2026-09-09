@@ -8,6 +8,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
+import { useRegisterCsvExport } from "@/components/ExportContext";
 function fetchFieldOptions(field: "district" | "domain" | "state") {
   return (q: string) =>
     fetch(`/api/filter-search?field=${field}&q=${encodeURIComponent(q)}`)
@@ -339,6 +340,8 @@ function EngagedUsersContent() {
     setDomain([]);
     setState([]);
   }, [resetSignal]);
+
+  useRegisterCsvExport(() => exportToCsv("engaged-users-by-district", cols, rows));
 
   return (
     <div style={{ position: "fixed", top: 0, left: "16rem", right: 0, bottom: 0,

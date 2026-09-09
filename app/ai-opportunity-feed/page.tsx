@@ -5,6 +5,7 @@ import { ExternalLink, Loader2, Download, Search, ArrowUpDown, ArrowUp, ArrowDow
 import DashboardHeader from "@/components/DashboardHeader";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
+import { useRegisterCsvExport } from "@/components/ExportContext";
 import { fmtDate } from "@/lib/fmtDate";
 
 type Signal = Record<string, unknown>;
@@ -168,6 +169,8 @@ export default function AIOpportunityFeed() {
   ].map((k) => ({ display_name: k, base_type: "type/Text" }));
   const csvRows = sorted.map((r) => csvCols.map((c) => r[c.display_name]));
 
+  useRegisterCsvExport(() => exportToCsv("account-intelligence", csvCols as never, csvRows as never));
+
   return (
     <div style={{ position: "fixed", top: 0, left: "16rem", right: 0, bottom: 0,
                   display: "flex", flexDirection: "column", background: "#f9fafb", zIndex: 1 }}>
@@ -207,7 +210,7 @@ export default function AIOpportunityFeed() {
             </div>
             {!loading && sorted.length > 0 && (
               <button
-                onClick={() => exportToCsv("ai-signals", csvCols as never, csvRows as never)}
+                onClick={() => exportToCsv("account-intelligence", csvCols as never, csvRows as never)}
                 className="flex items-center gap-1.5 text-xs text-gray-300 hover:text-white transition-colors"
               >
                 <Download size={13} /> Export CSV

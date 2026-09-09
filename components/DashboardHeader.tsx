@@ -1,44 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { CalendarSearch, X, RotateCcw, LogOut, FileSpreadsheet, Loader2 } from "lucide-react";
+import { CalendarSearch, X, RotateCcw, LogOut, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useFilter } from "@/components/FilterContext";
+import { useExport } from "@/components/ExportContext";
 import { CAMPAIGNS, campaignDateRange } from "@/lib/campaigns";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 
 export default function DashboardHeader({ legend }: { legend?: string }) {
   const { campaign, setCampaign, dateStart, dateEnd, setDateStart, setDateEnd, resetAll } = useFilter();
+  const { csvExport } = useExport();
   const router = useRouter();
-  const [exporting, setExporting] = useState(false);
 
   async function handleSignOut() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/login");
     router.refresh();
-  }
-
-  async function handleExport() {
-    setExporting(true);
-    try {
-      const params = new URLSearchParams();
-      if (campaign.length) params.set("campaign", campaign.join(","));
-      if (dateStart) params.set("dateStart", dateStart);
-      if (dateEnd)   params.set("dateEnd",   dateEnd);
-      const res  = await fetch(`/api/export-excel?${params.toString()}`);
-      const blob = await res.blob();
-      const cd   = res.headers.get("Content-Disposition") ?? "";
-      const name = cd.match(/filename="([^"]+)"/)?.[1] ?? "datia-export.xlsx";
-      const a    = Object.assign(document.createElement("a"), {
-        href: URL.createObjectURL(blob),
-        download: name,
-      });
-      a.click();
-      URL.revokeObjectURL(a.href);
-    } finally {
-      setExporting(false);
-    }
   }
 
   // With only one campaign to date, "nothing selected" and "C1 selected" mean the
@@ -118,16 +96,17 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
           <RotateCcw size={13} />
           Reset Filters
         </button>
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={exporting}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs text-emerald-700 hover:text-emerald-900 border border-emerald-300 hover:border-emerald-500 rounded-lg bg-white transition-colors shrink-0 disabled:opacity-60 disabled:cursor-wait"
-          title="Export all table data to Excel"
-        >
-          {exporting ? <Loader2 size={13} className="animate-spin" /> : <FileSpreadsheet size={13} />}
-          {exporting ? "Exporting…" : "Export Excel"}
-        </button>
+        {csvExport && (
+          <button
+            type="button"
+            onClick={csvExport}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs text-emerald-700 hover:text-emerald-900 border border-emerald-300 hover:border-emerald-500 rounded-lg bg-white transition-colors shrink-0"
+            title="Export this tab's data to CSV"
+          >
+            <Download size={13} />
+            Export CSV
+          </button>
+        )}
         <button
           type="button"
           onClick={handleSignOut}

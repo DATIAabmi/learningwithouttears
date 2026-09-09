@@ -8,6 +8,7 @@ import { useFilter } from "@/components/FilterContext";
 import MetabaseProviderWrapper from "@/components/MetabaseProvider";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
+import { useRegisterCsvExport } from "@/components/ExportContext";
 
 const KEYWORDS = ["after school", "child care", "head start", "enrichment"];
 
@@ -309,6 +310,8 @@ function SchoolBoardContent() {
     if (filterKeyword.length && !filterKeyword.map((v) => v.toLowerCase()).includes(String(row[5] ?? "").toLowerCase())) return false;
     return true;
   });
+
+  useRegisterCsvExport(() => exportToCsv("school-board-minutes", allCols, filteredRows));
 
   return (
     <MetabaseProviderWrapper>
