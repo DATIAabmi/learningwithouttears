@@ -10,24 +10,28 @@ type Signal = Record<string, unknown>;
 
 // Chip styling per column name
 function chipStyle(label: string): React.CSSProperties {
-  if (label === "Category Tags")
+  if (label === "Category")
     return { background: "#EDE9FE", color: "#4C1D95", border: "1px solid #C4B5FD" };
   return { background: "#F3F4F6", color: "#374151", border: "1px solid #E5E7EB" };
 }
 
 // Columns handled explicitly as grid cells or excluded from chips.
 // Matches the real ai_signals table schema (see /api/table/390/query_metadata):
-// Internal Customer Id, District, Domain, State, Campaign #, Date,
-// Currated Search Term, Category Tags, Source Tags, Source Link,
-// Signal Context, Strength, Amount, Enrollment, Nces ID
+// Customer ID, Io #, Market, Organization, Domain, State, Campaign #, Keywords,
+// Source Link, Date, Category, Source, Signal Analysis, Source Text, Strength,
+// Nces ID, Enrollment, Amount
+// Remaining (chip) columns: Keywords, Category, Nces ID, Enrollment
 const PRIMARY_COLS = new Set([
-  "Internal Customer Id",
+  "Customer ID",
+  "Io #",
+  "Market",
   "Strength",
-  "Signal Context",
+  "Signal Analysis",
+  "Source Text",
   "Amount",
   "Source Link",
-  "Source Tags",
-  "District",
+  "Source",
+  "Organization",
   "Domain",
   "State",
   "Campaign #",
@@ -105,18 +109,18 @@ export default function AIOpportunityFeed() {
       .catch((e: Error) => { setError(e.message ?? "Failed to load"); setLoading(false); });
   }, []);
 
-  const categoryOptions = [...new Set(rows.map((r) => String(r["Category Tags"] ?? "")).filter(Boolean))].sort();
-  const sourceOptions   = [...new Set(rows.map((r) => String(r["Source Tags"]   ?? "")).filter(Boolean))].sort();
+  const categoryOptions = [...new Set(rows.map((r) => String(r["Category"] ?? "")).filter(Boolean))].sort();
+  const sourceOptions   = [...new Set(rows.map((r) => String(r["Source"]   ?? "")).filter(Boolean))].sort();
 
   const q = searchText.trim().toLowerCase();
   const filtered = rows.filter((r) => {
-    if (!r["Signal Context"] || r["Strength"] == null) return false;
-    if (filterCategory.length && !filterCategory.includes((r["Category Tags"] as string) ?? "")) return false;
-    if (filterSource.length   && !filterSource.includes((r["Source Tags"] as string) ?? ""))     return false;
+    if (!r["Signal Analysis"] || r["Strength"] == null) return false;
+    if (filterCategory.length && !filterCategory.includes((r["Category"] as string) ?? "")) return false;
+    if (filterSource.length   && !filterSource.includes((r["Source"] as string) ?? ""))     return false;
     if (q) {
       const haystack = [
-        r["Signal Context"], r.District, r.State, r["Campaign #"],
-        r["Source Tags"], r["Category Tags"],
+        r["Signal Analysis"], r.Organization, r.State, r["Campaign #"],
+        r["Source"], r["Category"],
         extractDomain(r["Source Link"] as string),
       ].map((v) => String(v ?? "").toLowerCase()).join(" ");
       if (!haystack.includes(q)) return false;
@@ -231,7 +235,7 @@ export default function AIOpportunityFeed() {
 
                     {/* District */}
                     <div className="text-xs text-gray-700 leading-snug" style={{ paddingTop: 4 }}>
-                      {(row.District as string) || "—"}
+                      {(row.Organization as string) || "—"}
                     </div>
 
                     {/* Domain — links to source */}
@@ -263,13 +267,13 @@ export default function AIOpportunityFeed() {
 
                     {/* Source */}
                     <div className="text-xs text-gray-600 leading-snug" style={{ paddingTop: 4 }}>
-                      {(row["Source Tags"] as string) || "—"}
+                      {(row["Source"] as string) || "—"}
                     </div>
 
                     {/* Signal Context + chips */}
                     <div style={{ paddingTop: 3 }}>
                       <div className="text-xs text-gray-800 leading-relaxed break-words whitespace-normal">
-                        {(row["Signal Context"] as string) ?? "—"}
+                        {(row["Signal Analysis"] as string) ?? "—"}
                       </div>
                       {chips.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
