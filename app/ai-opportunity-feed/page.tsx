@@ -3,6 +3,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ExternalLink, Loader2, Download, Search, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
+import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
 import { useRegisterCsvExport } from "@/components/ExportContext";
@@ -102,6 +103,7 @@ function getRowValue(row: Signal, colKey: string): unknown {
 }
 
 export default function AIOpportunityFeed() {
+  const { resetSignal } = useFilter();
   const [rows, setRows]       = useState<Signal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
@@ -109,6 +111,14 @@ export default function AIOpportunityFeed() {
   const [filterCategory, setFilterCategory] = useState<string[]>([]);
   const [filterSource,   setFilterSource]   = useState<string[]>([]);
   const [searchText,     setSearchText]     = useState("");
+
+  // Clear this page's local filters when the global "Reset Filters" is clicked.
+  useEffect(() => {
+    if (resetSignal === 0) return;
+    setFilterCategory([]);
+    setFilterSource([]);
+    setSearchText("");
+  }, [resetSignal]);
 
   const titleBarRef = useRef<HTMLDivElement>(null);
   const [titleBarHeight, setTitleBarHeight] = useState(0);
