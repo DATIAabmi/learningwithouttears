@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DATIA K12 | Analytics Portal",
-  description: "Analytics Portal",
+  title: "DATIA K12 | Intelligence Dashboard",
+  description: "Intelligence Dashboard",
 };
 
 export default function RootLayout({
