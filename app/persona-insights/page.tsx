@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useLayoutEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, Loader2, ArrowUp, ArrowDown, ArrowUpDown, Download, Info, X } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -282,7 +282,26 @@ function PersonaInsightsContent() {
     setFilterJobFunction([]);
   }, [resetSignal]);
 
-  useRegisterCsvExport(() => exportToCsv("persona-insights", cols, rows));
+  // Export columns/rows follow the on-screen column order (COL_ORDER) and use
+  // the same friendly headers shown in the table:
+  // District, Domain, State, Campaign, Job Function, Leads, Engagements.
+  const exportCols = useMemo(
+    () =>
+      cols.length
+        ? COL_ORDER.map((j) => cols[j])
+            .map((c, idx) =>
+              c ? { ...c, display_name: COL_LABELS[COL_ORDER[idx]] ?? c.display_name } : c,
+            )
+            .filter(Boolean)
+        : cols,
+    [cols],
+  );
+  const exportRows = useMemo(
+    () => rows.map((row) => COL_ORDER.map((j) => row[j])),
+    [rows],
+  );
+
+  useRegisterCsvExport(() => exportToCsv("persona-insights", exportCols, exportRows));
 
   return (
     <div style={{ position: "fixed", top: 0, left: "16rem", right: 0, bottom: 0,
@@ -322,7 +341,7 @@ function PersonaInsightsContent() {
           </div>
           {rows.length > 0 && (
             <button
-              onClick={() => exportToCsv("persona-insights", cols, rows)}
+              onClick={() => exportToCsv("persona-insights", exportCols, exportRows)}
               className="flex items-center gap-1.5 text-xs text-gray-300 hover:text-white transition-colors"
             >
               <Download size={13} /> Export CSV
