@@ -193,7 +193,7 @@ function LoginForm() {
         </div>
 
         <p style={{ marginTop: 20, textAlign: "center", fontSize: 11, color: "#475569" }}>
-          DATIA K12 · Powered by Learning Without Tears
+          DATIA K12
         </p>
       </div>
     </div>
