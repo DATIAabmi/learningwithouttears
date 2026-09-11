@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cachedJson } from "@/lib/apiCache";
+import { CAMPAIGNS } from "@/lib/campaigns";
 
 export const maxDuration = 60;
 
@@ -51,8 +52,15 @@ async function fetchForCampaign(campaign: string, dateStart: string, dateEnd: st
 
   // Inject Campaign column at index 2 (after District, Domain) — this card has
   // no real per-row campaign dimension, so the requested value is echoed back.
+  // With no campaign filter applied ("All Campaigns" selected) and only one
+  // campaign configured, show that campaign's short code rather than the
+  // ambiguous "All" — falls back to "All" once there's more than one.
   const campaignCol = { display_name: "Campaign", base_type: "type/Text" };
-  const campaignVal = campaign ? campaign.split(":")[0].trim() : "All";
+  const campaignVal = campaign
+    ? campaign.split(":")[0].trim()
+    : CAMPAIGNS.length === 1
+      ? CAMPAIGNS[0].split(":")[0].trim()
+      : "All";
   const cols = [baseCols[0], baseCols[1], campaignCol, ...baseCols.slice(2)];
   const rows = baseRows.map((row) => [row[0], row[1], campaignVal, ...row.slice(2)]);
 
