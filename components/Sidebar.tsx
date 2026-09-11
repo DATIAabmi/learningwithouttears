@@ -21,6 +21,7 @@ import {
 const navItems = [
   { label: "Ecosystem Insights", icon: Globe, href: "/" },
   { label: "Engaged Users by District", icon: Users, href: "/engaged-users" },
+  { label: "Account Intelligence", icon: Sparkles, href: "/ai-opportunity-feed" },
   { label: "School Board Minutes", icon: ScrollText, href: "/school-board-minutes" },
   { label: "Persona Insights", icon: UserCircle, href: "/persona-insights" },
   { label: "Geo Insights", icon: MapPin, href: "/geo-insights" },
@@ -28,7 +29,6 @@ const navItems = [
   { label: "Topic Insights", icon: BookOpen, href: "/topic-insights" },
   { label: "Content Insights", icon: FileText, href: "/content-insights" },
   { label: "Ad Samples", icon: MonitorPlay, href: "/ad-samples" },
-  { label: "Account Intelligence", icon: Sparkles, href: "/ai-opportunity-feed" },
 ];
 
 export default function Sidebar() {

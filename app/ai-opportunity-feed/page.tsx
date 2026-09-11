@@ -19,21 +19,21 @@ function extractDomain(url: string | null | undefined): string {
 }
 
 // Full column grid — table scrolls horizontally
-// # | District | Domain | State | Campaign | Keywords | Source Link | Date | Category | Source | Signal Analysis | Source Text | Strength
+// # | District | Domain | State | Campaign | Keywords | Source Link | Date | Category | Source | Signal Analysis | Strength | Source Text
 const COLS = [
-  { key: "#",               width: 30,  sort: false, flex: false },
-  { key: "District",        width: 120, sort: true,  flex: false },
-  { key: "Domain",          width: 120, sort: true,  flex: false },
-  { key: "State",           width: 40,  sort: true,  flex: false },
-  { key: "Campaign",        width: 65,  sort: true,  flex: false },
-  { key: "Keywords",        width: 160, sort: true,  flex: false },
-  { key: "Source Link",     width: 90,  sort: false, flex: false },
-  { key: "Date",            width: 75,  sort: true,  flex: false },
-  { key: "Category",        width: 115, sort: true,  flex: false },
-  { key: "Source",          width: 90,  sort: true,  flex: false },
-  { key: "Signal Analysis", width: 220, sort: true,  flex: true  },
-  { key: "Source Text",     width: 260, sort: false, flex: true  },
-  { key: "Strength",        width: 70,  sort: true,  flex: false },
+  { key: "#",               width: 30,  sort: false, flex: false, center: false },
+  { key: "District",        width: 120, sort: true,  flex: false, center: false },
+  { key: "Domain",          width: 120, sort: true,  flex: false, center: false },
+  { key: "State",           width: 40,  sort: true,  flex: false, center: true  },
+  { key: "Campaign",        width: 65,  sort: true,  flex: false, center: true  },
+  { key: "Keywords",        width: 160, sort: true,  flex: false, center: false },
+  { key: "Source Link",     width: 90,  sort: false, flex: false, center: false },
+  { key: "Date",            width: 75,  sort: true,  flex: false, center: false },
+  { key: "Category",        width: 115, sort: true,  flex: false, center: false },
+  { key: "Source",          width: 90,  sort: true,  flex: false, center: false },
+  { key: "Signal Analysis", width: 220, sort: true,  flex: true,  center: false },
+  { key: "Strength",        width: 70,  sort: true,  flex: false, center: true  },
+  { key: "Source Text",     width: 260, sort: false, flex: true,  center: false },
 ];
 
 const SORT_OPTIONS = COLS.filter((c) => c.sort);
@@ -175,7 +175,7 @@ export default function AIOpportunityFeed() {
 
   const csvCols = [
     "Organization", "Domain", "State", "Campaign #", "Keywords",
-    "Source Link", "Date", "Category", "Source", "Signal Analysis", "Source Text", "Strength",
+    "Source Link", "Date", "Category", "Source", "Signal Analysis", "Strength", "Source Text",
   ].map((k) => ({ display_name: k, base_type: "type/Text" }));
   const csvRows = sorted.map((r) => csvCols.map((c) => r[c.display_name]));
 
@@ -247,7 +247,7 @@ export default function AIOpportunityFeed() {
                   <span
                     key={c.key}
                     onClick={c.sort ? () => setSort({ col: c.key, dir: sort.col === c.key && sort.dir === "desc" ? "asc" : "desc" }) : undefined}
-                    className={c.sort ? "cursor-pointer hover:opacity-70 inline-flex items-center gap-0.5" : ""}
+                    className={`${c.sort ? "cursor-pointer hover:opacity-70 " : ""}inline-flex items-center gap-0.5${c.center ? " justify-center" : ""}`}
                   >
                     {c.key}
                     {c.sort && sort.col === c.key && (
@@ -274,7 +274,7 @@ export default function AIOpportunityFeed() {
                       <div className="text-xs text-gray-400 tabular-nums pt-0.5">{i + 1}</div>
 
                       {/* District (Organization in DB) */}
-                      <div className="text-xs text-gray-700 leading-snug pt-0.5 truncate">
+                      <div className="text-xs text-gray-700 leading-snug pt-0.5 break-words">
                         {(row["Organization"] as string) || "—"}
                       </div>
 
@@ -284,12 +284,12 @@ export default function AIOpportunityFeed() {
                       </div>
 
                       {/* State */}
-                      <div className="text-xs text-gray-600 pt-0.5">
+                      <div className="text-xs text-gray-600 pt-0.5 text-center">
                         {(row["State"] as string) || "—"}
                       </div>
 
                       {/* Campaign */}
-                      <div className="text-xs text-gray-600 pt-0.5">
+                      <div className="text-xs text-gray-600 pt-0.5 text-center">
                         {(row["Campaign #"] as string) || "—"}
                       </div>
 
@@ -330,14 +330,14 @@ export default function AIOpportunityFeed() {
                         {(row["Signal Analysis"] as string) || "—"}
                       </div>
 
-                      {/* Source Text */}
-                      <div className="text-xs text-gray-500 pt-0.5 break-words leading-snug">
-                        {(row["Source Text"] as string) || "—"}
+                      {/* Strength */}
+                      <div className="text-xs text-gray-600 tabular-nums pt-0.5 text-center">
+                        {row["Strength"] !== null && row["Strength"] !== undefined && row["Strength"] !== "" ? String(row["Strength"]) : "—"}
                       </div>
 
-                      {/* Strength */}
-                      <div className="text-xs text-gray-600 tabular-nums pt-0.5">
-                        {row["Strength"] !== null && row["Strength"] !== undefined && row["Strength"] !== "" ? String(row["Strength"]) : "—"}
+                      {/* Source Text */}
+                      <div className="text-xs text-gray-800 pt-0.5 break-words leading-snug">
+                        {(row["Source Text"] as string) || "—"}
                       </div>
                     </div>
                   );
