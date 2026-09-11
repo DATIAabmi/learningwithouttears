@@ -188,7 +188,6 @@ const SCORE_TREND_COL = 11;
 // Shorter/matches-reference labels so multi-word headers can wrap onto two
 // lines instead of forcing extra column width.
 const HEADER_LABELS: Record<string, string> = {
-  State: "ST",
   Downloads: "Total Downloads",
   "Score Trend": "Intent Score Trend",
 };
