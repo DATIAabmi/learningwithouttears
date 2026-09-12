@@ -16,12 +16,12 @@ function DonutChart({ rows }: { rows: Row[] }) {
   const CY = 105;
   const circumference = 2 * Math.PI * R;
 
-  let cumulative = 0;
+  let cumPct = 0;
   const segments = rows.map((row, i) => {
     const pct = total > 0 ? row[1] / total : 0;
-    const offset = -(cumulative * circumference) + circumference * 0.25;
-    cumulative += pct;
-    return { label: row[0], clicks: row[1], pct, offset, color: COLORS[i % COLORS.length] };
+    const arcStart = cumPct * circumference;
+    cumPct += pct;
+    return { label: row[0], clicks: row[1], pct, arcStart, color: COLORS[i % COLORS.length] };
   });
 
   const fmtNum = (n: number) => Math.round(n).toLocaleString();
@@ -33,18 +33,21 @@ function DonutChart({ rows }: { rows: Row[] }) {
         <svg viewBox="0 0 210 210" width={210} height={210}>
           {/* Track */}
           <circle cx={CX} cy={CY} r={R} fill="none" stroke="#f3f4f6" strokeWidth={SW} />
-          {segments.map((seg, i) => (
-            <circle
-              key={i}
-              cx={CX} cy={CY} r={R}
-              fill="none"
-              stroke={seg.color}
-              strokeWidth={SW}
-              strokeDasharray={`${seg.pct * circumference} ${circumference}`}
-              strokeDashoffset={seg.offset}
-              style={{ transition: "stroke-dasharray 0.4s ease" }}
-            />
-          ))}
+          {/* Rotate -90° so segments start at 12 o'clock; offset is negative cumulative arc to shift each segment CW */}
+          <g transform={`rotate(-90 ${CX} ${CY})`}>
+            {segments.map((seg, i) => (
+              <circle
+                key={i}
+                cx={CX} cy={CY} r={R}
+                fill="none"
+                stroke={seg.color}
+                strokeWidth={SW}
+                strokeLinecap="butt"
+                strokeDasharray={`${seg.pct * circumference + 0.5} ${circumference}`}
+                strokeDashoffset={-seg.arcStart}
+              />
+            ))}
+          </g>
           {/* Center label */}
           <text x={CX} y={CY - 8} textAnchor="middle" fontSize={10} fill="#6b7280" fontFamily="inherit">Total Engagements</text>
           <text x={CX} y={CY + 12} textAnchor="middle" fontSize={15} fontWeight="700" fill="#111827" fontFamily="inherit">

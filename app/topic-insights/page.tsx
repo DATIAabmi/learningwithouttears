@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useLayoutEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, Loader2, ArrowUp, ArrowDown, ArrowUpDown, Download, Info, X } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -389,10 +389,21 @@ function TopicInsightsContent() {
     setFilterTopic([]);
   }, [resetSignal]);
 
-  useRegisterCsvExport(() => exportToCsv("topic-insights", cols, rows));
+  // Export follows the on-screen column order (COL_ORDER): District, Domain,
+  // State, Campaign, Topic, Topic Score — same reorder as the table itself.
+  const exportCols = useMemo(
+    () => (cols.length ? COL_ORDER.map((j) => cols[j]).filter(Boolean) : cols),
+    [cols],
+  );
+  const exportRows = useMemo(
+    () => rows.map((row) => COL_ORDER.map((j) => row[j])),
+    [rows],
+  );
+
+  useRegisterCsvExport(() => exportToCsv("topic-insights", exportCols, exportRows));
 
   return (
-    <div style={{ position: "fixed", top: 0, left: "16rem", right: 0, bottom: 0,
+    <div style={{ position: "fixed", top: 0, left: "14rem", right: 0, bottom: 0,
                   display: "flex", flexDirection: "column", background: "#f9fafb", zIndex: 1 }}>
       <div style={{ flexShrink: 0, padding: "16px 24px 0" }}>
         <DashboardHeader />
@@ -440,7 +451,7 @@ function TopicInsightsContent() {
           </div>
           {rows.length > 0 && (
             <button
-              onClick={() => exportToCsv("topic-insights", cols, rows)}
+              onClick={() => exportToCsv("topic-insights", exportCols, exportRows)}
               className="flex items-center gap-1.5 text-xs text-gray-300 hover:text-white transition-colors"
             >
               <Download size={13} /> Export CSV

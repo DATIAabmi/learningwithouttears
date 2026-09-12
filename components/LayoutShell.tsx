@@ -17,7 +17,7 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
     <FilterProvider>
       <ExportProvider>
         <Sidebar />
-        <main className="ml-64 min-h-screen p-8">{children}</main>
+        <main className="ml-56 min-h-screen p-8">{children}</main>
       </ExportProvider>
     </FilterProvider>
   );

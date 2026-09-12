@@ -201,7 +201,7 @@ export default function Page() {
         style={{
           position: "fixed",
           top: 0,
-          left: "16rem",
+          left: "14rem",
           right: 0,
           bottom: 0,
           display: "flex",
