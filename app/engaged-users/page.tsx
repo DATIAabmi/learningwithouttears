@@ -244,9 +244,9 @@ function DataTable({
                 <th key={j}
                   onClick={() => onSort({ col: j, dir: active && sort.dir === "desc" ? "asc" : "desc" })}
                   className="sticky z-10 bg-white px-2 py-2 font-bold text-gray-900 cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200"
-                  style={{ textAlign: left ? "left" : "center", top: headerTop }}>
-                  <span className={`inline-flex items-center gap-0.5 ${left ? "justify-start" : "justify-center"}`}>
-                    {label}
+                  style={{ textAlign: left ? "left" : "center", top: headerTop, ...(col.display_name === "Engagements" ? { minWidth: 100 } : {}) }}>
+                  <span className={`inline-flex flex-wrap items-center gap-0.5 ${left ? "justify-start" : "justify-center"}`}>
+                    <span style={col.display_name === "Engagements" ? { whiteSpace: "nowrap" } : undefined}>{label}</span>
                     {active && (sort.dir === "asc" ? <ArrowUp size={10} className="shrink-0" /> : <ArrowDown size={10} className="shrink-0" />)}
                   </span>
                 </th>
@@ -374,7 +374,8 @@ function EngagedUsersContent() {
         {showDefs && <DefinitionsModal onClose={() => setShowDefs(false)} />}
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 24px 24px" }}>
+      <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }} className="eu-scroll">
+        <style>{`.eu-scroll::-webkit-scrollbar{width:10px}.eu-scroll::-webkit-scrollbar-track{background:#e5e7eb;border-radius:5px}.eu-scroll::-webkit-scrollbar-thumb{background:#6b7280;border-radius:5px}.eu-scroll::-webkit-scrollbar-thumb:hover{background:#374151}`}</style>
         <div ref={titleBarRef} className="sticky top-0 z-20 bg-gray-900 text-white px-5 py-3 rounded-t-xl flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="font-bold text-sm tracking-wide uppercase">Engaged Users By District</span>
