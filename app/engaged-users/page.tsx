@@ -194,6 +194,7 @@ const SCORE_TREND_COL = 11;
 const HEADER_LABELS: Record<string, string> = {
   Downloads: "Total Downloads",
   "Score Trend": "Intent Score Trend",
+  SBM: "Intel",
 };
 
 interface TrendColor { bg: string; text: string }
