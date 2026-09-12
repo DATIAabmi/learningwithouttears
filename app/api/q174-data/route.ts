@@ -43,7 +43,7 @@ async function fetchForCampaign(campaign: string, dateStart: string, dateEnd: st
   const data = await res.json();
   // Card 592 now selects a real per-row Campaign column (short code, e.g.
   // "C1") directly in SQL, already in the display order we want: District,
-  // Domain, State, Campaign, Job Function, Total Downloads.
+  // Domain, State, Campaign, SBM, Job Function, Total Downloads.
   const cols: { display_name: string; base_type: string }[] = (data.data?.cols ?? []).map(
     (c: { name: string; display_name: string; base_type: string }) => ({
       display_name: DISPLAY_NAMES[c.name] ?? c.display_name,

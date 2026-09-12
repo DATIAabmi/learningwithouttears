@@ -23,8 +23,9 @@ const SORT_COLUMNS = [
   { label: "District",        index: 0 },
   { label: "State",           index: 2 },
   { label: "Campaign",        index: 3 },
-  { label: "Job Function",    index: 4 },
-  { label: "Total Downloads", index: 5 },
+  { label: "SBM",             index: 4 },
+  { label: "Job Function",    index: 5 },
+  { label: "Total Downloads", index: 6 },
 ];
 
 function SortDropdown({ sort, onSort }: { sort: SortState; onSort: (s: SortState) => void }) {
@@ -72,11 +73,11 @@ function SortDropdown({ sort, onSort }: { sort: SortState; onSort: (s: SortState
 type Col = { display_name: string; base_type: string };
 type Row = (string | number | null)[];
 const NUMBER_TYPES = new Set(["type/Integer","type/BigInteger","type/Float","type/Decimal","type/Number"]);
-const FORCE_CENTER_COLS = new Set(["Campaign", "State"]);
+const FORCE_CENTER_COLS = new Set(["Campaign", "State", "SBM"]);
 const HEADER_LABELS: Record<string, string> = { "District Domain": "Domain" };
 // Card 592 now selects columns in this exact order already, so no remap is
-// needed: District, Domain, State, Campaign, Job Function, Total Downloads.
-const COL_ORDER = [0, 1, 2, 3, 4, 5];
+// needed: District, Domain, State, Campaign, SBM, Job Function, Total Downloads.
+const COL_ORDER = [0, 1, 2, 3, 4, 5, 6];
 
 function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
   cols: Col[]; rows: Row[];
@@ -155,7 +156,7 @@ function LeadsInsightsContent() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [sort, setSort] = useState<SortState>({ col: 5, dir: "desc" });
+  const [sort, setSort] = useState<SortState>({ col: 6, dir: "desc" });
 
   const titleBarRef = useRef<HTMLDivElement>(null);
   const [titleBarHeight, setTitleBarHeight] = useState(0);
