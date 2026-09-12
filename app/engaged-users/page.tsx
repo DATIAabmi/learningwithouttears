@@ -19,6 +19,10 @@ function fetchFieldOptions(field: "district" | "domain" | "state") {
 // ─── Definitions modal ────────────────────────────────────────────────────────
 
 const DEFINITIONS = [
+  { term: "Interactive", def: "All reporting elements on the page are interactive." },
+  { term: "Filtering", def: "Filter the table using the dropdowns in the top left, or by clicking any chart bar to cross-filter." },
+  { term: "Reset", def: "To reset filters, click the Reset Filters button at the top right of the page." },
+  { term: "Sorting", def: "Sort the table by clicking any column header or using the Sort button at the top right of the page." },
   { term: "SBM", def: "School Board Minutes. The SBM Link directs to the school board minutes document." },
   { term: "Topic", def: "Intent signals based on content consumption. See Topic Insights dashboard." },
   { term: "Engagements", def: "The number of clicks on your ads, email opens and lead downloads." },
@@ -41,7 +45,7 @@ function DefinitionsModal({ onClose }: { onClose: () => void }) {
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <span style={{ fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Metric Descriptions</span>
+          <span style={{ fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Dashboard Guide</span>
           <button type="button" onClick={onClose} style={{ color: "#9ca3af", cursor: "pointer", background: "none", border: "none", padding: 0 }}>
             <X size={16} />
           </button>
@@ -360,7 +364,7 @@ function EngagedUsersContent() {
               className="flex items-center gap-1.5 px-3 py-2 text-xs text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-400 rounded-lg bg-white transition-colors shrink-0"
             >
               <Info size={13} />
-              Metric Descriptions
+              Dashboard Guide
             </button>
           </div>
           <SortDropdown sort={sort} onSort={setSort} />
