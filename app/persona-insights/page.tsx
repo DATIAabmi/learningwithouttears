@@ -251,9 +251,13 @@ function PersonaInsightsContent() {
     const params = new URLSearchParams();
     if (dateStart)              params.set("dateStart",   dateStart);
     if (dateEnd)                params.set("dateEnd",     dateEnd);
-    if (filterDistrict.length)    params.set("district",    filterDistrict.join(","));
-    if (filterState.length)       params.set("state",       filterState.join(","));
-    if (filterJobFunction.length) params.set("jobFunction", filterJobFunction.join(","));
+    // District and Job Function values routinely contain commas (e.g.
+    // "DIRECTOR, ASSESSMENT", "JACKSON COUNTY PUBLIC SCHOOLS, NC"), so each
+    // selection is appended as its own param instead of comma-joined —
+    // joining would silently split those values apart on the server.
+    filterDistrict.forEach((v) => params.append("district", v));
+    filterState.forEach((v) => params.append("state", v));
+    filterJobFunction.forEach((v) => params.append("jobFunction", v));
 
     fetch(`/api/q168-data?${params.toString()}`)
       .then((r) => r.json())

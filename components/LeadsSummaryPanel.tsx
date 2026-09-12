@@ -10,6 +10,7 @@ interface SummaryData {
   uniqueLeadDistrict: number | null;
   byContentType: [string, number][];
   byContentName: [string, number][];
+  byState: [string, number][];
 }
 
 function fmt(n: number | null): string {

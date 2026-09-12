@@ -4,17 +4,17 @@ import { cachedJson } from "@/lib/apiCache";
 const METABASE_URL = process.env.NEXT_PUBLIC_METABASE_URL!;
 const API_KEY = process.env.METABASE_ADMIN_API_KEY!;
 
-function parseList(v: string | null): string[] {
-  return (v ?? "").split(",").map((s) => s.trim()).filter(Boolean);
-}
-
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const dateStart    = searchParams.get("dateStart") ?? "";
   const dateEnd      = searchParams.get("dateEnd") ?? "";
-  const districts    = parseList(searchParams.get("district"));
-  const states       = parseList(searchParams.get("state"));
-  const jobFunctions = parseList(searchParams.get("jobFunction"));
+  // District and Job Function values routinely contain commas, so the
+  // client sends each selection as its own repeated param rather than a
+  // comma-joined string (which would get split apart on values that
+  // themselves contain a comma, e.g. "DIRECTOR, ASSESSMENT").
+  const districts    = searchParams.getAll("district");
+  const states       = searchParams.getAll("state");
+  const jobFunctions = searchParams.getAll("jobFunction");
 
   const parameters: object[] = [];
 

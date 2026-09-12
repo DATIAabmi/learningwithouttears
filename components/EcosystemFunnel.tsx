@@ -189,7 +189,7 @@ export default function EcosystemFunnel() {
                 >
                   {stage.label}
                 </h3>
-                <p className="text-gray-500 mt-0.5 leading-snug" style={{ fontSize: 10, maxWidth: 200 }}>
+                <p className="text-gray-500 mt-0.5 leading-snug whitespace-nowrap" style={{ fontSize: 10 }}>
                   {stage.description}
                 </p>
                 {stage.goal && (

@@ -7,7 +7,7 @@ const METABASE_URL = process.env.NEXT_PUBLIC_METABASE_URL!;
 const API_KEY = process.env.METABASE_ADMIN_API_KEY!;
 
 const CACHE_TTL_MS = 30 * 60 * 1000;
-type SummaryResult = { totalDownloads: unknown; totalUniqueLeads: unknown; uniqueLeadDistrict: unknown; byContentType: unknown; byContentName: unknown };
+type SummaryResult = { totalDownloads: unknown; totalUniqueLeads: unknown; uniqueLeadDistrict: unknown; byContentType: unknown; byContentName: unknown; byState: unknown };
 const memCache = new Map<string, { data: SummaryResult; ts: number }>();
 const inflight = new Map<string, Promise<SummaryResult>>();
 
@@ -44,12 +44,13 @@ async function fetchSummaryForCampaign(campaign: string, dateStart: string, date
   if (campaign) params.push({ id: "campaign", type: "string/=", value: campaign, target: ["variable", ["template-tag", "Abmi_Campaign"]] });
   if (dateStart && dateEnd) params.push({ id: "date", type: "date/range", value: `${dateStart}~${dateEnd}`, target: ["dimension", ["template-tag", "Last_Updated"]] });
 
-  const [r175, r176, r177, r178, r179] = await Promise.all([
+  const [r175, r176, r177, r178, r179, r180] = await Promise.all([
     fetchCard(593, params),
     fetchCard(594, params),
     fetchCard(595, params),
     fetchCard(596, params),
     fetchCard(597, params),
+    fetchCard(725, params),
   ]);
 
   return {
@@ -58,6 +59,7 @@ async function fetchSummaryForCampaign(campaign: string, dateStart: string, date
     uniqueLeadDistrict: r177?.[0]?.[0] ?? null,
     byContentType: (r178 ?? []) as [string, number][],
     byContentName: (r179 ?? []) as [string, number][],
+    byState: (r180 ?? []) as [string, number][],
   };
 }
 
@@ -78,6 +80,7 @@ async function getResult(campaigns: string[], dateStart: string, dateEnd: string
           uniqueLeadDistrict: sum(perCampaign.map((r) => r.uniqueLeadDistrict)),
           byContentType: mergeLabeledCounts(perCampaign.map((r) => r.byContentType)),
           byContentName: mergeLabeledCounts(perCampaign.map((r) => r.byContentName)),
+          byState: mergeLabeledCounts(perCampaign.map((r) => r.byState)),
         };
       }
       memCache.set(key, { data: result, ts: Date.now() });
