@@ -23,10 +23,10 @@ const DEFINITIONS = [
   { term: "Filtering", def: "Filter the table using the dropdowns in the top left, or by clicking any chart bar to cross-filter." },
   { term: "Reset", def: "To reset filters, click the Reset Filters button at the top right of the page." },
   { term: "Sorting", def: "Sort the table by clicking any column header or using the Sort button at the top right of the page." },
-  { term: "SBM", def: "School Board Minutes. The SBM Link directs to the school board minutes document." },
+  { term: "Intel", def: "Account Intelligence signals including School Board Minutes, RFPs/Bids, Grants/Bonds, Strategic Initiatives, Leadership Changes, and District News. See the Account Intelligence dashboard for details." },
   { term: "Topic", def: "Intent signals based on content consumption. See Topic Insights dashboard." },
   { term: "Engagements", def: "The number of clicks on your ads, email opens and lead downloads." },
-  { term: "Intent Score", def: "A numerical value that indicates a lead/district's likelihood to be in market derived from district data and total engagement" },
+  { term: "Intent Score", def: "A numerical value that indicates a district's likelihood to be in market derived from district data and total engagement" },
 ];
 
 function DefinitionsModal({ onClose }: { onClose: () => void }) {
