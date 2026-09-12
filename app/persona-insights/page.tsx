@@ -7,9 +7,13 @@ import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
 import { useRegisterCsvExport } from "@/components/ExportContext";
+// strict=1 scopes options to values that actually appear in this page's
+// underlying data (card 588 requires District/Domain/State/Job Function/
+// Campaign to all be populated together) — otherwise the dropdown offers
+// values that exist in the raw table but never show up in the results.
 function fetchFieldOptions(field: "district" | "state" | "job_function") {
   return (q: string) =>
-    fetch(`/api/filter-search?field=${field}&q=${encodeURIComponent(q)}`)
+    fetch(`/api/filter-search?field=${field}&q=${encodeURIComponent(q)}&strict=1`)
       .then((r) => r.json())
       .then((d) => d.values ?? []);
 }
