@@ -182,7 +182,7 @@ export default function AIOpportunityFeed() {
   useRegisterCsvExport(() => exportToCsv("account-intelligence", csvCols as never, csvRows as never));
 
   return (
-    <div style={{ position: "fixed", top: 0, left: "14rem", right: 0, bottom: 0,
+    <div style={{ position: "fixed", top: 0, left: "12rem", right: 0, bottom: 0,
                   display: "flex", flexDirection: "column", background: "#f9fafb", zIndex: 1 }}>
       {/* Filters */}
       <div style={{ flexShrink: 0, padding: "16px 24px 0" }}>

@@ -44,9 +44,9 @@ export default function Sidebar() {
   }, []);
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-56 bg-white border-r border-gray-100 flex flex-col z-10">
+    <aside className="fixed left-0 top-0 h-screen w-48 bg-white border-r border-gray-100 flex flex-col z-10">
       {/* Branding */}
-      <div className="px-5 py-4 border-b border-gray-100">
+      <div className="px-4 py-4 border-b border-gray-100">
         {lastUpdated && (
           <p className="text-[10px] text-blue-500 font-medium mb-3">
             Last Updated: {lastUpdated}
@@ -55,8 +55,8 @@ export default function Sidebar() {
         <Image
           src="/datia-k12-logo.png"
           alt="DATIA K12"
-          width={180}
-          height={40}
+          width={159}
+          height={35}
           priority
         />
         <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase mt-2">
