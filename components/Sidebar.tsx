@@ -13,7 +13,6 @@ import {
   FileText,
   MonitorPlay,
   SlidersHorizontal,
-  ScrollText,
   Sparkles,
   MapPin,
 } from "lucide-react";
@@ -22,7 +21,8 @@ const navItems = [
   { label: "Ecosystem Insights", icon: Globe, href: "/" },
   { label: "Engaged Users by District", icon: Users, href: "/engaged-users" },
   { label: "Account Intelligence", icon: Sparkles, href: "/ai-opportunity-feed" },
-  { label: "School Board Minutes", icon: ScrollText, href: "/school-board-minutes" },
+  // School Board Minutes tab hidden for now — keep the route/page intact, will re-add to nav later.
+  // { label: "School Board Minutes", icon: ScrollText, href: "/school-board-minutes" },
   { label: "Persona Insights", icon: UserCircle, href: "/persona-insights" },
   { label: "Geo Insights", icon: MapPin, href: "/geo-insights" },
   { label: "Leads Insights", icon: TrendingUp, href: "/leads-insights" },
