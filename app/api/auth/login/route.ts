@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const data = await res.json();
     mbSessionToken = data.id;
   } catch {
-    return NextResponse.json({ error: "Could not reach Metabase — try again" }, { status: 502 });
+    return NextResponse.json({ error: "Could not reach the server — try again" }, { status: 502 });
   }
 
   // 2. Fetch current user info + group memberships
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
 
       if (!user.is_superuser && !groupNames.includes(REQUIRED_GROUP)) {
         return NextResponse.json(
-          { error: `Your Metabase account is not in the "${REQUIRED_GROUP}" group` },
+          { error: `Your account is not in the "${REQUIRED_GROUP}" group` },
           { status: 403 }
         );
       }

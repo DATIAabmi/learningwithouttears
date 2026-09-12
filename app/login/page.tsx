@@ -94,14 +94,14 @@ function LoginForm() {
             />
             <div style={{ height: 2, width: 48, background: "#ef4444", borderRadius: 2, marginTop: 14 }} />
             <p style={{ marginTop: 10, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b7280" }}>
-              Analytics Portal
+              Intelligence Dashboard
             </p>
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
               <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "#374151", marginBottom: 6 }}>
-                Metabase Email
+                Email
               </label>
               <input
                 type="email"
@@ -188,7 +188,7 @@ function LoginForm() {
           </form>
 
           <p style={{ marginTop: 20, textAlign: "center", fontSize: 12, color: "#9ca3af" }}>
-            Use your Metabase account credentials
+            Use your account credentials
           </p>
         </div>
 
