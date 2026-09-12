@@ -21,8 +21,8 @@ interface SortState { col: number; dir: SortDir }
 
 const SORT_COLUMNS = [
   { label: "District",        index: 0 },
-  { label: "Campaign",        index: 2 },
-  { label: "State",           index: 3 },
+  { label: "State",           index: 2 },
+  { label: "Campaign",        index: 3 },
   { label: "Job Function",    index: 4 },
   { label: "Total Downloads", index: 5 },
 ];
@@ -74,9 +74,9 @@ type Row = (string | number | null)[];
 const NUMBER_TYPES = new Set(["type/Integer","type/BigInteger","type/Float","type/Decimal","type/Number"]);
 const FORCE_CENTER_COLS = new Set(["Campaign", "State"]);
 const HEADER_LABELS: Record<string, string> = { "District Domain": "Domain" };
-// Visual column order: District, Domain, State, Campaign, then the rest as-is.
-// Raw data order (card 174): 0=District 1=Domain 2=Campaign 3=State 4=Job Function 5=Total Downloads
-const COL_ORDER = [0, 1, 3, 2, 4, 5];
+// Card 592 now selects columns in this exact order already, so no remap is
+// needed: District, Domain, State, Campaign, Job Function, Total Downloads.
+const COL_ORDER = [0, 1, 2, 3, 4, 5];
 
 function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
   cols: Col[]; rows: Row[];
