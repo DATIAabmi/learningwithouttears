@@ -191,10 +191,6 @@ function LoginForm() {
             Use your account credentials
           </p>
         </div>
-
-        <p style={{ marginTop: 20, textAlign: "center", fontSize: 11, color: "#475569" }}>
-          DATIA K12
-        </p>
       </div>
     </div>
   );
