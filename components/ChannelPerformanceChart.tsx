@@ -6,7 +6,7 @@ import { useFilter } from "./FilterContext";
 
 const COLORS = ["#509EE3", "#88BF4D", "#EF8C8C", "#F9D45C", "#A989C5", "#98D9D9"];
 
-type Row = [string, number, number];
+export type Row = [string, number, number];
 
 function DonutChart({ rows }: { rows: Row[] }) {
   const total = rows.reduce((s, r) => s + r[1], 0);
@@ -81,9 +81,10 @@ function DonutChart({ rows }: { rows: Row[] }) {
 interface Props {
   filterChannel?: string[];
   onChannelsLoaded?: (channels: string[]) => void;
+  onRowsLoaded?: (rows: Row[]) => void;
 }
 
-export default function ChannelPerformanceChart({ filterChannel, onChannelsLoaded }: Props) {
+export default function ChannelPerformanceChart({ filterChannel, onChannelsLoaded, onRowsLoaded }: Props) {
   const { campaign, dateStart, dateEnd } = useFilter();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,6 +105,7 @@ export default function ChannelPerformanceChart({ filterChannel, onChannelsLoade
         setRows(loaded);
         setLoading(false);
         onChannelsLoaded?.(loaded.map((r) => r[0]));
+        onRowsLoaded?.(loaded);
       })
       .catch(() => { setError("Failed to load"); setLoading(false); });
   }, [campaign, dateStart, dateEnd]); // eslint-disable-line react-hooks/exhaustive-deps

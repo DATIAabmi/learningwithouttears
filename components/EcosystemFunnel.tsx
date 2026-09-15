@@ -24,7 +24,7 @@ function computePct(actual: string | number | null, goal: number): string | unde
   return Math.round((n / goal) * 100) + "%";
 }
 
-interface FunnelData {
+export interface FunnelData {
   impressions: string | number | null;
   engagements: string | number | null;
   ctr: string | number | null;
@@ -75,7 +75,7 @@ export function EcosystemFilterBar() {
   );
 }
 
-export default function EcosystemFunnel() {
+export default function EcosystemFunnel({ onDataLoaded }: { onDataLoaded?: (data: FunnelData) => void } = {}) {
   const { campaign, dateStart, dateEnd } = useFilter();
   const [data, setData] = useState<FunnelData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -90,9 +90,9 @@ export default function EcosystemFunnel() {
     const qs = params.toString();
     fetch(`/api/funnel-data${qs ? `?${qs}` : ""}`)
       .then((r) => r.json())
-      .then((d) => { setData(d); setLoading(false); })
+      .then((d) => { setData(d); setLoading(false); onDataLoaded?.(d); })
       .catch(() => { setError("Failed to load"); setLoading(false); });
-  }, [campaign, dateStart, dateEnd]);
+  }, [campaign, dateStart, dateEnd]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (

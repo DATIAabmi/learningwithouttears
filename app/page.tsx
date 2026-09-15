@@ -2,13 +2,38 @@
 
 import { useState } from "react";
 import DashboardHeader from "@/components/DashboardHeader";
-import EcosystemFunnel from "@/components/EcosystemFunnel";
-import ChannelPerformanceChart from "@/components/ChannelPerformanceChart";
+import EcosystemFunnel, { type FunnelData } from "@/components/EcosystemFunnel";
+import ChannelPerformanceChart, { type Row as ChannelRow } from "@/components/ChannelPerformanceChart";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
+import { exportToCsv } from "@/lib/exportCsv";
+import { useRegisterCsvExport } from "@/components/ExportContext";
+
+function fmtMetric(val: string | number | null): string {
+  if (val === null || val === undefined) return "";
+  if (typeof val === "string") return val;
+  return Math.round(val).toLocaleString();
+}
 
 export default function Home() {
   const [filterChannel, setFilterChannel] = useState<string[]>([]);
   const [channelOptions, setChannelOptions] = useState<string[]>([]);
+  const [funnelData, setFunnelData] = useState<FunnelData | null>(null);
+  const [channelRows, setChannelRows] = useState<ChannelRow[]>([]);
+
+  // Combines the funnel KPIs and channel breakdown — the only two data
+  // sources on this page — into one Metric/Value report, since neither is
+  // its own row-based table to export on its own.
+  useRegisterCsvExport(() => {
+    const rows: [string, string][] = [
+      ["Impressions", fmtMetric(funnelData?.impressions ?? null)],
+      ["Engagements", fmtMetric(funnelData?.engagements ?? null)],
+      ["Click-Through Rate (CTR)", fmtMetric(funnelData?.ctr ?? null)],
+      ["Unique Engaged Users (UEU)", fmtMetric(funnelData?.engagedUsers ?? null)],
+      ["Leads", fmtMetric(funnelData?.leads ?? null)],
+      ...channelRows.map((r): [string, string] => [`${r[0]} (Engagements)`, fmtMetric(r[1])]),
+    ];
+    exportToCsv("ecosystem-insights", [{ display_name: "Metric" }, { display_name: "Value" }], rows);
+  });
 
   return (
     <>
@@ -31,7 +56,7 @@ export default function Home() {
               Program Metrics Summary
             </span>
           </div>
-          <EcosystemFunnel />
+          <EcosystemFunnel onDataLoaded={setFunnelData} />
         </div>
         <div className="w-full xl:w-1/2 min-w-0 flex flex-col gap-3">
           <div className="flex items-center gap-3">
@@ -43,6 +68,7 @@ export default function Home() {
           <ChannelPerformanceChart
             filterChannel={filterChannel}
             onChannelsLoaded={setChannelOptions}
+            onRowsLoaded={setChannelRows}
           />
         </div>
       </div>
