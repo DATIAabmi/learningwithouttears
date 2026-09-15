@@ -168,12 +168,12 @@ function ClicksDonutChart({ rows }: { rows: ChannelClickRow[] }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-medium text-gray-800 truncate">{seg.label}</span>
-                  <span className="text-sm tabular-nums text-gray-500 shrink-0">{Math.round(seg.clicks).toLocaleString()}</span>
+                  <span className="text-sm font-semibold tabular-nums text-gray-800 shrink-0">{(seg.pct * 100).toFixed(1)}%</span>
                 </div>
                 <div className="mt-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div className="h-full rounded-full" style={{ width: `${seg.pct * 100}%`, backgroundColor: seg.color }} />
                 </div>
-                <div className="text-xs text-gray-400 mt-0.5">{(seg.pct * 100).toFixed(1)}%</div>
+                <div className="text-xs text-gray-400 mt-0.5 tabular-nums">{Math.round(seg.clicks).toLocaleString()} clicks</div>
               </div>
             </div>
           ))}
