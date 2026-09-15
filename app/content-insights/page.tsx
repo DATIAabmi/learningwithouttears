@@ -6,6 +6,8 @@ import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink, Info, Loader2, X } from 
 import DashboardHeader from "@/components/DashboardHeader";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
+import { exportToCsv } from "@/lib/exportCsv";
+import { useRegisterCsvExport } from "@/components/ExportContext";
 
 // ─── Metric Description modal ──────────────────────────────────────────────────
 
@@ -241,6 +243,21 @@ function GatedContentTable({ campaign, dateStart, dateEnd }: { campaign: string[
   const totalImpressions = rows.reduce((s, r) => s + (Number(r[4]) || 0), 0);
   const totalClicks = rows.reduce((s, r) => s + (Number(r[5]) || 0), 0);
   const totalCtr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) + "%" : "—";
+
+  // Export skips the Image column (a thumbnail URL, not useful in a
+  // spreadsheet) — Asset Name/Link/Campaign/Impressions/Clicks/CTR mirror
+  // what's shown on screen.
+  const EXPORT_COLS = [
+    { display_name: "Asset Name" },
+    { display_name: "Asset Link" },
+    { display_name: "Campaign" },
+    { display_name: "Impressions" },
+    { display_name: "Clicks" },
+    { display_name: "CTR" },
+  ];
+  useRegisterCsvExport(() =>
+    exportToCsv("content-insights-gated-content", EXPORT_COLS, rows.map((r) => [r[1], r[2], r[3], r[4], r[5], r[6]])),
+  );
 
   return (
     <div className="rounded-xl border border-gray-200 shadow-sm" style={{ clipPath: "inset(0 round 0.75rem)" }}>
