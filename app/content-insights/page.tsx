@@ -12,7 +12,7 @@ import { useRegisterCsvExport } from "@/components/ExportContext";
 // ─── Metric Description modal ──────────────────────────────────────────────────
 
 const METRIC_DESCRIPTION =
-  "The below table shows the level of engagement for each content asset used in the ABMi 100 program by Impressions (from campaign efforts), Clicks (clicks from campaign efforts), and CTR (Clicks/Impressions). The table can be sorted by clicking any column header. Clicking on the asset name to filter entire page, click asset name again to remove filter or click Reset to remove all filters.";
+  "The below table shows the level of engagement for each content asset used in the ABMxi 100 program by Impressions (from campaign efforts), Clicks (clicks from campaign efforts), and CTR (Clicks/Impressions). The table can be sorted by clicking any column header. Clicking on the asset name to filter entire page, click asset name again to remove filter or click Reset to remove all filters.";
 
 function MetricDescriptionModal({ onClose }: { onClose: () => void }) {
   const [mounted, setMounted] = useState(false);

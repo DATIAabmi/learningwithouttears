@@ -55,7 +55,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
             className="font-bold text-gray-900 leading-tight"
             style={{ fontFamily: "'Lato', sans-serif", fontSize: "30px", letterSpacing: "-0.5px" }}
           >
-            ABMi
+            ABMxi
           </h1>
           <p className="mt-1 font-medium" style={{ fontSize: "12px", color: "#6b8cba" }}>
             {subtitle}
@@ -67,7 +67,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
       {/* Global filters — Campaign + Date Range */}
       <div className="mt-2 pt-2 border-t border-gray-100 flex items-center gap-2 flex-wrap">
         <MultiSelectDropdown
-          label="ABMi Campaign"
+          label="ABMxi Campaign"
           value={displayCampaign}
           onChange={setCampaign}
           options={[...CAMPAIGNS]}

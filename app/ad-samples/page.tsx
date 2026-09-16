@@ -27,7 +27,7 @@ function cleanAdSamples(container: HTMLElement): boolean {
   let headerBottom = 0;
   for (const card of cards) {
     const text = (card.textContent ?? "").trim();
-    if (text.includes("ABMi Always On") || text.includes("Last Update")) {
+    if (text.includes("ABMxi Always On") || text.includes("Last Update")) {
       const rect = card.getBoundingClientRect();
       headerBottom = Math.max(headerBottom, rect.bottom - containerRect.top);
     }

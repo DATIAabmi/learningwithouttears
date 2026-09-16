@@ -40,7 +40,7 @@ interface Props {
   /**
    * When true, hides the Metabase branding header and keeps the embed hidden
    * until the header is confirmed gone. Use on dashboards without autoTab that
-   * still embed the "ABMi Always On" header section.
+   * still embed the "ABMxi Always On" header section.
    */
   hideHeader?: boolean;
   /**
@@ -55,7 +55,7 @@ interface Props {
    */
   onLinkClick?: (value: string) => void;
   /**
-   * Dashboard parameter slug for the ABMi Campaign filter.
+   * Dashboard parameter slug for the ABMxi Campaign filter.
    * When provided, the global campaign selection from FilterContext is sent
    * to the embed (e.g. "abmi_campaign_" for dashboard 76).
    */
@@ -79,7 +79,7 @@ interface Props {
 
 // ---------------------------------------------------------------------------
 // Hide the Metabase dashboard's own branding header (rows 0-5).
-// Strategy: find the "ABMi Always On" text card, walk up to its dashcard
+// Strategy: find the "ABMxi Always On" text card, walk up to its dashcard
 // container, then hide every sibling in the parent grid whose bottom edge
 // is at or near the header section (with a 150px buffer for the row-5 divider).
 // ---------------------------------------------------------------------------
@@ -99,7 +99,7 @@ interface Props {
 // Known text found only in the Metabase branding header rows.
 // These strings identify which grid children are header cards.
 const HEADER_CARD_TEXTS = [
-  "abmi always on",
+  "abmxi always on",
   "last updated",
   "reporting period",
   "program status",
@@ -133,14 +133,14 @@ function isSkipContentCard(child: HTMLElement): boolean {
 
 function hideMetabaseHeaderCards(container: HTMLElement): boolean {
   // 1. Find the react-grid-layout grid.
-  //    Primary: locate via "ABMi Always On" text card (dashboards that have it).
+  //    Primary: locate via "ABMxi Always On" text card (dashboards that have it).
   //    Fallback: use .react-grid-layout directly (tabs like 166 that have no
   //    branding header but still need skip-content cards hidden).
   let gridEl: HTMLElement | null = null;
   let usedFallback = false;
   for (const el of container.querySelectorAll<HTMLElement>("*")) {
     if (el.childElementCount > 4) continue;
-    if ((el.textContent ?? "").trim() !== "ABMi Always On") continue;
+    if ((el.textContent ?? "").trim() !== "ABMxi Always On") continue;
     let ancestor: HTMLElement | null = el;
     while (ancestor && ancestor !== container) {
       if (
@@ -166,7 +166,7 @@ function hideMetabaseHeaderCards(container: HTMLElement): boolean {
   // 2. Find the bottom of all VISIBLE header/skip cards.
   //
   //    PRIMARY PATH: safe to use HEADER_CARD_TEXTS — the grid was found via
-  //    "ABMi Always On" so we know it contains branding header cards.
+  //    "ABMxi Always On" so we know it contains branding header cards.
   //
   //    FALLBACK PATH: do NOT use HEADER_CARD_TEXTS. Texts like "right at school"
   //    appear in data card titles (e.g. card 405 on tab 166) and would cause
