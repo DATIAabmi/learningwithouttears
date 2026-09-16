@@ -36,10 +36,6 @@ const TOPICS = [
 
 type Col = { display_name: string; base_type: string };
 type Row = (string | number | null)[];
-const NUMBER_TYPES = new Set(["type/Integer","type/BigInteger","type/Float","type/Decimal","type/Number"]);
-const LEFT_ALIGN_COLS = new Set(["District", "Domain", "District Domain", "Topic"]);
-const FORCE_CENTER_COLS = new Set(["Campaign", "State"]);
-const HEADER_LABELS: Record<string, string> = { "District Domain": "Domain" };
 // Visual column order: District, Domain, State, Campaign, Topic, Topic Score.
 // Raw data order (card 181): 0=District 1=Domain 2=Campaign 3=State 4=Topic 5=Topic Score
 const COL_ORDER = [0, 1, 3, 2, 4, 5];
@@ -211,11 +207,19 @@ function SortDropdown({ sort, onSort }: { sort: SortState; onSort: (s: SortState
 
 // ─── Data table ───────────────────────────────────────────────────────────────
 
-function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
-  cols: Col[]; rows: Row[];
-  sort: SortState; onSort: (s: SortState) => void;
-  headerTop?: number;
-}) {
+// Raw: 0=District 1=Domain 2=Campaign 3=State 4=Topic 5=Topic Score
+const TI_COLS = [
+  { label: "#",           width: 32,  align: "center" as const, colIdx: -1 },
+  { label: "District",    width: 220, align: "left"   as const, colIdx: 0  },
+  { label: "Domain",      width: 120, align: "left"   as const, colIdx: 1  },
+  { label: "State",       width: 52,  align: "center" as const, colIdx: 3  },
+  { label: "Campaign",    width: 90,  align: "center" as const, colIdx: 2  },
+  { label: "Topic",       width: 240, align: "left"   as const, colIdx: 4  },
+  { label: "Topic Score", width: 90,  align: "center" as const, colIdx: 5  },
+];
+const TI_GRID = TI_COLS.map((c) => `${c.width}px`).join(" ");
+
+function DataTable({ rows, sort }: { rows: Row[]; sort: SortState }) {
   if (rows.length === 0) {
     return <div className="flex items-center justify-center h-64 text-gray-400 text-sm">No results</div>;
   }
@@ -229,59 +233,24 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
     return sort.dir === "asc" ? cmp : -cmp;
   });
 
-  // col order: #, District, Domain, State, Campaign, Topic, Topic Score
-  const COL_WIDTHS = ["3%", "34%", "14%", "5%", "8%", "26%", "10%"];
-
   return (
     <div className="bg-white">
-      <table className="text-xs border-collapse" style={{ tableLayout: "fixed", width: 800, minWidth: 800 }}>
-        <colgroup>
-          {COL_WIDTHS.map((w, i) => <col key={i} style={{ width: w }} />)}
-        </colgroup>
-        <thead>
-          <tr className="border-b border-gray-200">
-            <th className="sticky z-10 bg-white px-2 py-2 text-center font-bold border-b border-gray-200" style={{ color: "#111827", top: headerTop }}>#</th>
-            {COL_ORDER.map((j) => {
-              const col = cols[j];
-              if (!col) return null;
-              const isLeft = LEFT_ALIGN_COLS.has(col.display_name) && !FORCE_CENTER_COLS.has(col.display_name);
-              const active = sort.col === j;
-              return (
-                <th key={j}
-                  onClick={() => onSort({ col: j, dir: active && sort.dir === "desc" ? "asc" : "desc" })}
-                  style={{ color: "#111827", textAlign: isLeft ? "left" : "center", top: headerTop }}
-                  className="sticky z-10 bg-white px-2 py-2 font-bold leading-tight cursor-pointer select-none hover:opacity-70 border-b border-gray-200">
-                  <span className={`inline-flex items-center gap-1 ${isLeft ? "justify-start" : "justify-center"}`}>
-                    {HEADER_LABELS[col.display_name] ?? col.display_name}
-                    {active ? (sort.dir === "asc" ? <ArrowUp size={11} /> : <ArrowDown size={11} />) : <ArrowUpDown size={11} className="opacity-30" />}
-                  </span>
-                </th>
-              );
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((row, i) => (
-            <tr key={i} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-              <td className="px-2 py-1.5 text-center text-gray-400">{i + 1}</td>
-              {COL_ORDER.map((j) => {
-                const cell = row[j];
-                const isNum = NUMBER_TYPES.has(cols[j]?.base_type);
-                const colName = cols[j]?.display_name ?? "";
-                const isLeft = LEFT_ALIGN_COLS.has(colName) && !FORCE_CENTER_COLS.has(colName);
-                const text = cell === null || cell === undefined ? "" : String(cell);
-                return (
-                  <td key={j}
-                    style={{ textAlign: isLeft ? "left" : "center" }}
-                    className={`px-2 py-1.5 ${isNum ? "tabular-nums" : ""} text-gray-800`}>
-                    {text}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {sorted.map((row, i) => (
+        <div key={i} className="border-b border-gray-100 hover:bg-gray-50 transition-colors text-xs"
+             style={{ display: "grid", gridTemplateColumns: TI_GRID }}>
+          <span className="px-2 py-1.5 text-center text-gray-400 font-medium">{i + 1}</span>
+          {TI_COLS.slice(1).map((cd) => {
+            const j = cd.colIdx;
+            const cell = row[j];
+            const text = cell === null || cell === undefined ? "" : String(cell);
+            return (
+              <span key={j} className="px-2 py-1.5 text-gray-800" style={{ textAlign: cd.align }}>
+                {text}
+              </span>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }
@@ -430,7 +399,7 @@ function TopicInsightsContent() {
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }}>
-        <div style={{ minWidth: 800, width: "100%" }}>
+        <div style={{ minWidth: 844, width: "100%" }}>
 
         {/* AVG Topic Score chart — driven by the same filtered rows as the table */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-4 overflow-hidden" style={{ height: 340 }}>
@@ -465,9 +434,24 @@ function TopicInsightsContent() {
           <div className="flex items-center justify-center h-64 text-red-500 text-sm bg-white border border-t-0 border-gray-200 rounded-b-xl">{error}</div>
         )}
         {!loading && !error && (
-          <div className="border border-t-0 border-gray-200 rounded-b-xl shadow-sm" style={{ overflow: "clip" }}>
-            <DataTable cols={cols} rows={rows} sort={sort} onSort={setSort} headerTop={titleBarHeight} />
-          </div>
+          <>
+            <div className="sticky z-10 bg-white border-b border-l border-r border-gray-200 text-[11px] font-semibold text-gray-700"
+                 style={{ top: titleBarHeight, display: "grid", gridTemplateColumns: TI_GRID }}>
+              {TI_COLS.map((cd, i) => (
+                <span key={i}
+                  className={`px-2 py-2 inline-flex items-center gap-0.5 select-none ${cd.colIdx >= 0 ? "cursor-pointer hover:opacity-70" : ""} ${cd.align === "center" ? "justify-center" : "justify-start"}`}
+                  onClick={cd.colIdx >= 0 ? () => setSort({ col: cd.colIdx, dir: sort.col === cd.colIdx && sort.dir === "desc" ? "asc" : "desc" }) : undefined}>
+                  {cd.label}
+                  {cd.colIdx >= 0 && (sort.col === cd.colIdx
+                    ? (sort.dir === "asc" ? <ArrowUp size={10} className="shrink-0" /> : <ArrowDown size={10} className="shrink-0" />)
+                    : <ArrowUpDown size={10} className="opacity-30 shrink-0" />)}
+                </span>
+              ))}
+            </div>
+            <div className="border border-t-0 border-gray-200 rounded-b-xl shadow-sm" style={{ overflow: "clip" }}>
+              <DataTable rows={rows} sort={sort} />
+            </div>
+          </>
         )}
         </div>
       </div>
