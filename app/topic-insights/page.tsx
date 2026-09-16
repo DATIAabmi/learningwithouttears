@@ -230,7 +230,7 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
   });
 
   // col order: #, District, Domain, State, Campaign, Topic, Topic Score
-  const COL_WIDTHS = ["3%", "22%", "14%", "5%", "5%", "38%", "13%"];
+  const COL_WIDTHS = ["3%", "30%", "14%", "5%", "5%", "30%", "13%"];
 
   return (
     <div className="bg-white">
