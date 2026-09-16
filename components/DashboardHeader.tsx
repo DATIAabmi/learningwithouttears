@@ -120,7 +120,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
             title="Export this tab's data to CSV"
           >
             <Download size={13} />
-            Export CSV
+            Export
           </button>
         )}
         <button
