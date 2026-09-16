@@ -68,17 +68,31 @@ export async function POST(request: NextRequest) {
   let groupNames: string[] = [];
   if (REQUIRED_GROUP) {
     try {
-      // Fetch all groups using admin API key so we can map IDs → names
-      const res = await fetch(`${METABASE_URL}/api/permissions/group`, {
-        headers: { "x-api-key": process.env.METABASE_ADMIN_API_KEY! },
-      });
-      if (!res.ok) {
-        console.error("login: /api/permissions/group failed", res.status, await res.text().catch(() => ""));
+      // Metabase's /api/user/current omits user_group_memberships for
+      // non-admin sessions (it's only reliably present for superusers or
+      // when an admin queries another user), so re-fetch this specific
+      // user's record via /api/user/:id using the admin API key instead of
+      // trusting whatever /api/user/current returned in step 2.
+      const [userRes, groupsRes] = await Promise.all([
+        fetch(`${METABASE_URL}/api/user/${user.id}`, {
+          headers: { "x-api-key": process.env.METABASE_ADMIN_API_KEY! },
+        }),
+        fetch(`${METABASE_URL}/api/permissions/group`, {
+          headers: { "x-api-key": process.env.METABASE_ADMIN_API_KEY! },
+        }),
+      ]);
+      if (!userRes.ok) {
+        console.error("login: /api/user/:id failed", userRes.status, await userRes.text().catch(() => ""));
         return NextResponse.json({ error: "Could not verify group membership" }, { status: 502 });
       }
-      const allGroups: MbGroup[] = await res.json();
+      if (!groupsRes.ok) {
+        console.error("login: /api/permissions/group failed", groupsRes.status, await groupsRes.text().catch(() => ""));
+        return NextResponse.json({ error: "Could not verify group membership" }, { status: 502 });
+      }
+      const userWithGroups: MbUser = await userRes.json();
+      const allGroups: MbGroup[] = await groupsRes.json();
 
-      const userGroupIds = new Set((user.user_group_memberships ?? []).map((m) => m.id));
+      const userGroupIds = new Set((userWithGroups.user_group_memberships ?? []).map((m) => m.id));
       groupNames = allGroups
         .filter((g) => userGroupIds.has(g.id))
         .map((g) => g.name);
