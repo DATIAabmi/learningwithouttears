@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useLayoutEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo } from "react";
 import { ChevronDown, Loader2, ArrowUp, ArrowDown, ArrowUpDown, Download } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import { useFilter } from "@/components/FilterContext";
@@ -23,7 +23,6 @@ const SORT_COLUMNS = [
   { label: "District",        index: 0 },
   { label: "State",           index: 2 },
   { label: "Campaign",        index: 3 },
-  { label: "SBM",             index: 4 },
   { label: "Job Function",    index: 5 },
   { label: "Total Downloads", index: 6 },
 ];
@@ -73,11 +72,12 @@ function SortDropdown({ sort, onSort }: { sort: SortState; onSort: (s: SortState
 type Col = { display_name: string; base_type: string };
 type Row = (string | number | null)[];
 const NUMBER_TYPES = new Set(["type/Integer","type/BigInteger","type/Float","type/Decimal","type/Number"]);
-const FORCE_CENTER_COLS = new Set(["Campaign", "State", "SBM"]);
+const FORCE_CENTER_COLS = new Set(["Campaign", "State"]);
 const HEADER_LABELS: Record<string, string> = { "District Domain": "Domain" };
-// Card 592 now selects columns in this exact order already, so no remap is
-// needed: District, Domain, State, Campaign, SBM, Job Function, Total Downloads.
-const COL_ORDER = [0, 1, 2, 3, 4, 5, 6];
+// Card 592 selects: District, Domain, State, Campaign, SBM, Job Function,
+// Total Downloads (raw index 4 = SBM). SBM/Intel is intentionally excluded
+// from COL_ORDER below to hide it from the table and export.
+const COL_ORDER = [0, 1, 2, 3, 5, 6];
 
 function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
   cols: Col[]; rows: Row[];
@@ -206,7 +206,18 @@ function LeadsInsightsContent() {
     setFilterJobFunction([]);
   }, [resetSignal]);
 
-  useRegisterCsvExport(() => exportToCsv("leads-insights", cols, rows));
+  // Export follows the on-screen columns (COL_ORDER) so SBM/Intel, hidden
+  // from the table, is also excluded from the CSV.
+  const exportCols = useMemo(
+    () => (cols.length ? COL_ORDER.map((j) => cols[j]).filter(Boolean) : cols),
+    [cols],
+  );
+  const exportRows = useMemo(
+    () => rows.map((row) => COL_ORDER.map((j) => row[j])),
+    [rows],
+  );
+
+  useRegisterCsvExport(() => exportToCsv("leads-insights", exportCols, exportRows));
 
   return (
     <div style={{ position: "fixed", top: 0, left: "12rem", right: 0, bottom: 0,
@@ -236,7 +247,7 @@ function LeadsInsightsContent() {
             )}
           </div>
           {rows.length > 0 && (
-            <button onClick={() => exportToCsv("leads-insights", cols, rows)}
+            <button onClick={() => exportToCsv("leads-insights", exportCols, exportRows)}
               className="flex items-center gap-1.5 text-xs text-gray-300 hover:text-white transition-colors">
               <Download size={13} /> Export
             </button>
