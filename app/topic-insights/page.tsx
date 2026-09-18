@@ -8,29 +8,12 @@ import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
 import { useRegisterCsvExport } from "@/components/ExportContext";
-function fetchFieldOptions(field: "district" | "state") {
+function fetchFieldOptions(field: "district" | "state" | "topic") {
   return (q: string) =>
     fetch(`/api/filter-search?field=${field}&q=${encodeURIComponent(q)}`)
       .then((r) => r.json())
       .then((d) => d.values ?? []);
 }
-
-const TOPICS = [
-  "After-School Care Programs",
-  "Back-up Child Care",
-  "Bright Horizons Family Solutions Inc. (BFAM)",
-  "Care for Kids",
-  "Child Care",
-  "Child Care Subsidy Programs",
-  "Contract Renewal",
-  "Early Childhood Education",
-  "Request For Proposal (RFP)",
-  "Social Learning",
-  "Social and Emotional Learning",
-  "Student Support Services",
-  "Supervised Learning",
-  "Third-Party Vendors",
-];
 
 // ─── Data types (used by table and chart) ─────────────────────────────────────
 
@@ -382,7 +365,7 @@ function TopicInsightsContent() {
           <div className="flex items-center gap-2">
             <MultiSelectDropdown label="District" value={filterDistrict} onChange={setFilterDistrict} search={fetchFieldOptions("district")} />
             <MultiSelectDropdown label="State"    value={filterState}    onChange={setFilterState}    search={fetchFieldOptions("state")} />
-            <MultiSelectDropdown label="Topic"    value={filterTopic}    onChange={setFilterTopic}    options={TOPICS} />
+            <MultiSelectDropdown label="Topic"    value={filterTopic}    onChange={setFilterTopic}    search={fetchFieldOptions("topic")} />
             <button
               type="button"
               onClick={() => setShowDefs(true)}

@@ -34,6 +34,31 @@ export async function GET(req: NextRequest) {
   const q = (searchParams.get("q") ?? "").trim();
   const strict = searchParams.get("strict") === "1";
 
+  // Topic lives inside a nested/repeated field (sc.engagement), so it needs
+  // its own UNNEST-based query instead of the flat "SELECT DISTINCT col
+  // FROM table" pattern the other fields use.
+  if (field === "topic") {
+    const qEsc = q.replace(/"/g, "");
+    const limit = q ? 1000 : 50;
+    const sql = `
+      SELECT DISTINCT item.topics AS topic
+      FROM ${TABLE} AS sc
+      CROSS JOIN UNNEST(sc.engagement) AS item
+      WHERE item.topics IS NOT NULL AND LOWER(item.topics) != "null" AND item.topics != ""
+      ${q ? `AND LOWER(item.topics) LIKE LOWER("%${qEsc}%")` : ""}
+      ORDER BY topic
+      LIMIT ${limit}`;
+
+    const res = await fetch(`${METABASE_URL}/api/dataset`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
+      body: JSON.stringify({ database: DB_ID, type: "native", native: { query: sql }, middleware: { "js-int-to-string?": true } }),
+    });
+    const data = await res.json();
+    const values: string[] = (data?.data?.rows ?? []).map((r: string[]) => r[0]).filter(Boolean);
+    return cachedJson({ values });
+  }
+
   const col = FIELD_MAP[field];
   if (!col) return NextResponse.json({ values: [] });
 
