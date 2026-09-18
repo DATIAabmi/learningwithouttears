@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { cachedJson } from "@/lib/apiCache";
+import { CAMPAIGNS } from "@/lib/campaigns";
 
 export const maxDuration = 60;
 
@@ -117,8 +118,16 @@ export async function GET(req: NextRequest) {
   const dateStart = searchParams.get("dateStart") ?? "";
   const dateEnd   = searchParams.get("dateEnd")   ?? "";
 
-  if (campaigns.length <= 1) {
-    const result = await fetchContentForCampaign(campaigns[0] ?? "", dateStart, dateEnd);
+  // Selecting every known campaign should mean "everything", same as no
+  // filter at all -- some rows in the underlying table have no campaign tag
+  // (legacy/untagged engagement data), so filtering with an explicit
+  // Abmi_Campaign IN (...) list excludes them even when the list covers
+  // every campaign that exists, silently undercounting vs. the true total.
+  const isEveryKnownCampaign = campaigns.length >= CAMPAIGNS.length
+    && CAMPAIGNS.every((c) => campaigns.includes(c));
+
+  if (campaigns.length <= 1 || isEveryKnownCampaign) {
+    const result = await fetchContentForCampaign(isEveryKnownCampaign ? "" : (campaigns[0] ?? ""), dateStart, dateEnd);
     return cachedJson(result);
   }
 

@@ -41,7 +41,11 @@ export async function GET(req: NextRequest) {
   const dateStart = searchParams.get("dateStart") ?? "";
   const dateEnd   = searchParams.get("dateEnd")   ?? "";
 
-  const where: string[] = ["1=1"];
+  // Some rows in the underlying table have no asset_name/URL/image at all
+  // (untagged engagement data not tied to any real gated-content asset) --
+  // exclude them unconditionally so a blank phantom row never shows up in
+  // this table, regardless of what else is filtered.
+  const where: string[] = ["1=1", "asset_name IS NOT NULL AND asset_name != ''"];
   if (campaigns.length)     where.push(`Abmi_Campaign IN ${sqlInList(campaigns)}`);
   if (channels.length)      where.push(`Channel IN ${sqlInList(channels)}`);
   if (dateStart && dateEnd) where.push(`DATE(date) BETWEEN ${sqlStr(dateStart)} AND ${sqlStr(dateEnd)}`);
