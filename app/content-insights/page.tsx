@@ -44,8 +44,8 @@ function MetricDescriptionModal({ onClose }: { onClose: () => void }) {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-// Card 605 columns: Image, Asset Name, Asset Link, Campaign, Impressions, Clicks, CTR
-type GatedRow = [string, string, string, string, number | string, number | string, string];
+// Raw SQL columns: Image, Asset Name, Asset Link, Campaign, Channel, Impressions, Clicks, CTR
+type GatedRow = [string, string, string, string, string, number | string, number | string, string];
 type ChannelBreakdownRow = [string, number, number, number | string];
 type ChannelClickRow = [string, number, number];
 
@@ -206,7 +206,7 @@ function GatedContentTable({ campaign, dateStart, dateEnd, channel }: { campaign
   const [rows, setRows] = useState<GatedRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [sort, setSort] = useState<SortState>({ col: 4, dir: "desc" });
+  const [sort, setSort] = useState<SortState>({ col: 5, dir: "desc" });
 
   const titleBarRef = useRef<HTMLDivElement>(null);
   const [titleBarHeight, setTitleBarHeight] = useState(0);
@@ -227,24 +227,32 @@ function GatedContentTable({ campaign, dateStart, dateEnd, channel }: { campaign
     if (campaign.length) params.set("campaign",  campaign.join(","));
     if (dateStart)       params.set("dateStart", dateStart);
     if (dateEnd)         params.set("dateEnd",   dateEnd);
-    if (channel.length)  params.set("channel",   channel.join(","));
     fetch(`/api/q205-data?${params.toString()}`)
       .then((r) => r.json())
       .then((d) => { setRows(d.rows ?? []); setLoading(false); })
       .catch(() => { setError("Failed to load"); setLoading(false); });
-  }, [campaign, dateStart, dateEnd, channel]);
+  }, [campaign, dateStart, dateEnd]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const HEADERS = [
     { label: "Image",             col: -1 },
     { label: "Asset Name & Link", col: 1 },
-    { label: "Impressions",       col: 4 },
-    { label: "Clicks",            col: 5 },
-    { label: "CTR",               col: 6 },
+    { label: "Channel",           col: 4 },
+    { label: "Impressions",       col: 5 },
+    { label: "Clicks",            col: 6 },
+    { label: "CTR",               col: 7 },
   ];
 
-  const sorted = [...rows].sort((a, b) => {
+  // Channel filter applies client-side against the Channel column (index 4)
+  // already selected by the query, matching how the donut/breakdown tables
+  // on this page filter — the underlying rows are always fetched unfiltered
+  // by channel so toggling the filter doesn't need a re-fetch.
+  const filtered = channel.length > 0
+    ? rows.filter((r) => channel.includes(String(r[4] ?? "")))
+    : rows;
+
+  const sorted = [...filtered].sort((a, b) => {
     const av = a[sort.col]; const bv = b[sort.col];
     if (av === null || av === undefined) return 1;
     if (bv === null || bv === undefined) return -1;
@@ -258,23 +266,24 @@ function GatedContentTable({ campaign, dateStart, dateEnd, channel }: { campaign
     setSort((s) => ({ col, dir: s.col === col && s.dir === "desc" ? "asc" : "desc" }));
   }
 
-  const totalImpressions = rows.reduce((s, r) => s + (Number(r[4]) || 0), 0);
-  const totalClicks = rows.reduce((s, r) => s + (Number(r[5]) || 0), 0);
+  const totalImpressions = filtered.reduce((s, r) => s + (Number(r[5]) || 0), 0);
+  const totalClicks = filtered.reduce((s, r) => s + (Number(r[6]) || 0), 0);
   const totalCtr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) + "%" : "—";
 
   // Export skips the Image column (a thumbnail URL, not useful in a
-  // spreadsheet) — Asset Name/Link/Campaign/Impressions/Clicks/CTR mirror
-  // what's shown on screen.
+  // spreadsheet) — Asset Name/Link/Campaign/Channel/Impressions/Clicks/CTR
+  // mirror what's shown on screen, respecting the active channel filter.
   const EXPORT_COLS = [
     { display_name: "Asset Name" },
     { display_name: "Asset Link" },
     { display_name: "Campaign" },
+    { display_name: "Channel" },
     { display_name: "Impressions" },
     { display_name: "Clicks" },
     { display_name: "CTR" },
   ];
   useRegisterCsvExport(() =>
-    exportToCsv("content-insights-gated-content", EXPORT_COLS, rows.map((r) => [r[1], r[2], r[3], r[4], r[5], r[6]])),
+    exportToCsv("content-insights-gated-content", EXPORT_COLS, filtered.map((r) => [r[1], r[2], r[3], r[4], r[5], r[6], r[7]])),
   );
 
   return (
@@ -298,9 +307,9 @@ function GatedContentTable({ campaign, dateStart, dateEnd, channel }: { campaign
               <tr className="border-b border-gray-200">
                 {HEADERS.map((h) => (
                   <th key={h.label} onClick={() => handleSort(h.col)}
-                    className={`sticky z-10 bg-white px-4 py-3 font-semibold whitespace-nowrap select-none border-b border-gray-200 ${h.col >= 0 ? "cursor-pointer hover:opacity-70" : ""} ${h.col >= 4 ? "text-right" : "text-left"}`}
+                    className={`sticky z-10 bg-white px-4 py-3 font-semibold whitespace-nowrap select-none border-b border-gray-200 ${h.col >= 0 ? "cursor-pointer hover:opacity-70" : ""} ${h.col >= 5 ? "text-right" : "text-left"}`}
                     style={{ color: "#111827", top: titleBarHeight }}>
-                    <span className={`inline-flex items-center gap-1 ${h.col >= 4 ? "justify-end" : "justify-start"}`}>
+                    <span className={`inline-flex items-center gap-1 ${h.col >= 5 ? "justify-end" : "justify-start"}`}>
                       {h.label}
                       {h.col >= 0 && (
                         sort.col === h.col
@@ -333,9 +342,10 @@ function GatedContentTable({ campaign, dateStart, dateEnd, channel }: { campaign
                       <span className="text-gray-800 font-medium">{String(row[1] ?? "")}</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-gray-800 whitespace-nowrap">{fmtNum(row[4])}</td>
+                  <td className="px-4 py-3 text-gray-800 whitespace-nowrap">{String(row[4] ?? "")}</td>
                   <td className="px-4 py-3 text-right tabular-nums text-gray-800 whitespace-nowrap">{fmtNum(row[5])}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-gray-800 whitespace-nowrap">{String(row[6] ?? "")}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-gray-800 whitespace-nowrap">{fmtNum(row[6])}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-gray-800 whitespace-nowrap">{String(row[7] ?? "")}</td>
                 </tr>
               ))}
             </tbody>
@@ -343,6 +353,7 @@ function GatedContentTable({ campaign, dateStart, dateEnd, channel }: { campaign
               <tr className="border-t-2 border-gray-300 bg-gray-50">
                 <td className="px-4 py-3" />
                 <td className="px-4 py-3 font-bold text-gray-900">Grand Total</td>
+                <td className="px-4 py-3" />
                 <td className="px-4 py-3 text-right tabular-nums font-bold text-gray-900 whitespace-nowrap">{fmtNum(totalImpressions)}</td>
                 <td className="px-4 py-3 text-right tabular-nums font-bold text-gray-900 whitespace-nowrap">{fmtNum(totalClicks)}</td>
                 <td className="px-4 py-3 text-right tabular-nums font-bold text-gray-900 whitespace-nowrap">{totalCtr}</td>
