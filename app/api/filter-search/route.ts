@@ -36,16 +36,21 @@ export async function GET(req: NextRequest) {
 
   // Topic lives inside a nested/repeated field (sc.engagement), so it needs
   // its own UNNEST-based query instead of the flat "SELECT DISTINCT col
-  // FROM table" pattern the other fields use.
+  // FROM table" pattern the other fields use. item.topics mixes real
+  // Bombora intent topics together with raw content/SEO keywords (e.g.
+  // "handwriting", "literacy", "ela") from a separate curate_topic field
+  // that got unioned in — item.bombora_topic is the clean, curated field
+  // (confirmed it exactly matches the 7 topics in the AVG Topic Score
+  // chart), so the filter searches that instead.
   if (field === "topic") {
     const qEsc = q.replace(/"/g, "");
     const limit = q ? 1000 : 50;
     const sql = `
-      SELECT DISTINCT item.topics AS topic
+      SELECT DISTINCT item.bombora_topic AS topic
       FROM ${TABLE} AS sc
       CROSS JOIN UNNEST(sc.engagement) AS item
-      WHERE item.topics IS NOT NULL AND LOWER(item.topics) != "null" AND item.topics != ""
-      ${q ? `AND LOWER(item.topics) LIKE LOWER("%${qEsc}%")` : ""}
+      WHERE item.bombora_topic IS NOT NULL AND LOWER(item.bombora_topic) != "null" AND item.bombora_topic != ""
+      ${q ? `AND LOWER(item.bombora_topic) LIKE LOWER("%${qEsc}%")` : ""}
       ORDER BY topic
       LIMIT ${limit}`;
 
