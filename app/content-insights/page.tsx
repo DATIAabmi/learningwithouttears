@@ -128,8 +128,11 @@ function ChannelBreakdownTable({ rows }: { rows: ChannelBreakdownRow[] }) {
 // Same palette as the Ecosystem Insights donut chart.
 const COLORS = ["#509EE3", "#88BF4D", "#EF8C8C", "#F9D45C", "#A989C5", "#98D9D9"];
 
-function ClicksDonutChart({ rows }: { rows: ChannelClickRow[] }) {
-  const [selected, setSelected] = useState<number | null>(null);
+function ClicksDonutChart({ rows, selectedChannel, onSelectChannel }: {
+  rows: ChannelClickRow[];
+  selectedChannel: string | null;
+  onSelectChannel: (channel: string) => void;
+}) {
   const total = rows.reduce((s, r) => s + (r[1] ?? 0), 0);
   const R = 70, SW = 36, CX = 100, CY = 100;
   const circumference = 2 * Math.PI * R;
@@ -145,8 +148,6 @@ function ClicksDonutChart({ rows }: { rows: ChannelClickRow[] }) {
     cumPct += pct;
     return { label: row[0], clicks: row[1] ?? 0, pct, arcStart, color: COLORS[i % COLORS.length] };
   });
-
-  const toggle = (i: number) => setSelected((s) => (s === i ? null : i));
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
@@ -164,9 +165,9 @@ function ClicksDonutChart({ rows }: { rows: ChannelClickRow[] }) {
                   strokeLinecap="butt"
                   strokeDasharray={`${seg.pct * circumference + 0.5} ${circumference}`}
                   strokeDashoffset={-seg.arcStart}
-                  opacity={selected === null || selected === i ? 1 : 0.25}
+                  opacity={selectedChannel === null || selectedChannel === seg.label ? 1 : 0.25}
                   style={{ cursor: "pointer", transition: "opacity 0.15s" }}
-                  onClick={() => toggle(i)} />
+                  onClick={() => onSelectChannel(seg.label)} />
               ))}
             </g>
             <text x={CX} y={CY - 8} textAnchor="middle" fontSize={11} fill="#6b7280" fontFamily="inherit">Total Clicks</text>
@@ -178,9 +179,9 @@ function ClicksDonutChart({ rows }: { rows: ChannelClickRow[] }) {
         <div className="flex flex-col gap-3 flex-1 min-w-0">
           {segments.map((seg, i) => (
             <div key={i}
-              onClick={() => toggle(i)}
+              onClick={() => onSelectChannel(seg.label)}
               className="flex items-center gap-3 -mx-2 px-2 py-1 rounded-lg cursor-pointer transition-colors"
-              style={{ backgroundColor: selected === i ? "#f3f4f6" : "transparent", opacity: selected === null || selected === i ? 1 : 0.5 }}>
+              style={{ backgroundColor: selectedChannel === seg.label ? "#f3f4f6" : "transparent", opacity: selectedChannel === null || selectedChannel === seg.label ? 1 : 0.5 }}>
               <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
@@ -389,14 +390,11 @@ export default function Page() {
   // Derive available channels from loaded data
   const availableChannels = data?.channelBreakdown.map((r) => String(r[0])) ?? [];
 
-  // Apply channel filter client-side
+  // Apply channel filter client-side (only to the breakdown table — the
+  // donut always shows every channel so it stays clickable as a filter).
   const filteredBreakdown: ChannelBreakdownRow[] = (data?.channelBreakdown ?? []).filter(
     (r) => filterChannel.length === 0 || filterChannel.includes(String(r[0]))
   ) as ChannelBreakdownRow[];
-
-  const filteredClicks: ChannelClickRow[] = (data?.channelClicks ?? []).filter(
-    (r) => filterChannel.length === 0 || filterChannel.includes(String(r[0]))
-  ) as ChannelClickRow[];
 
   // Recalculate KPIs from filtered channel rows
   const filteredImpressions = filteredBreakdown.length
@@ -449,10 +447,16 @@ export default function Page() {
               <ScalarCard label="CTR" value={filteredCtr ?? "—"} />
             </div>
 
-            {/* Channel charts */}
+            {/* Channel charts — the donut always shows every channel so it
+                stays clickable as a cross-filter; the breakdown table on
+                the left narrows to whatever channel is selected. */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               <ChannelBreakdownTable rows={filteredBreakdown} />
-              <ClicksDonutChart rows={filteredClicks} />
+              <ClicksDonutChart
+                rows={data?.channelClicks ?? []}
+                selectedChannel={filterChannel.length === 1 ? filterChannel[0] : null}
+                onSelectChannel={(ch) => setFilterChannel((cur) => (cur.length === 1 && cur[0] === ch ? [] : [ch]))}
+              />
             </div>
 
             {/* Gated Content table */}
