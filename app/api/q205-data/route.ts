@@ -46,19 +46,23 @@ export async function GET(req: NextRequest) {
   if (channels.length)      where.push(`Channel IN ${sqlInList(channels)}`);
   if (dateStart && dateEnd) where.push(`DATE(date) BETWEEN ${sqlStr(dateStart)} AND ${sqlStr(dateEnd)}`);
 
+  // Channel filters the underlying rows (via WHERE) before aggregation, but
+  // is not part of the GROUP BY/SELECT — the table stays one row per asset,
+  // summed across whichever channels are selected (or all of them), the
+  // same shape it's always had. An asset with zero matching rows for the
+  // selected channel(s) simply drops out of the GROUP BY entirely.
   const sql = `
 SELECT
   DASH_Image_URL  AS Image,
   asset_name      AS \`Asset Name\`,
   URL             AS \`Asset Link\`,
   Abmi_Campaign   AS Campaign,
-  Channel,
   SUM(impressions) AS Impressions,
   SUM(clicks)      AS Clicks,
   CONCAT(ROUND(SAFE_DIVIDE(SUM(clicks), SUM(impressions)) * 100, 2), '%') AS CTR
 FROM ${TABLE}
 WHERE ${where.join(" AND ")}
-GROUP BY asset_name, URL, DASH_Image_URL, Abmi_Campaign, Channel
+GROUP BY asset_name, URL, DASH_Image_URL, Abmi_Campaign
 ORDER BY Impressions DESC`;
 
   const res = await fetch(`${METABASE_URL}/api/dataset`, {
