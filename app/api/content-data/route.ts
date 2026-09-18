@@ -6,6 +6,30 @@ export const maxDuration = 60;
 const METABASE_URL = process.env.NEXT_PUBLIC_METABASE_URL!;
 const API_KEY = process.env.METABASE_ADMIN_API_KEY!;
 
+// Each card's Abmi_Campaign/Date template tags have their own distinct UUID
+// (verified directly against Metabase) -- a generic parameter id like this
+// route used before silently no-ops instead of erroring, so the campaign
+// filter looked wired up but every per-campaign fetch actually returned the
+// full unfiltered total. Selecting 2 campaigns then summed two full totals,
+// doubling every number on the page. Date is a dimension-type field filter
+// (not a plain variable), so its target must be ["dimension", ...] with a
+// single "start~end" value, not two separate date_start/date_end params.
+const CARD_TAGS: Record<number, { campaign: string; date: string }> = {
+  600: { campaign: "42673811-578c-499b-a7fb-67482c6015bb", date: "dbe6f1b5-2fb5-475e-b7ed-03877fa37163" },
+  601: { campaign: "af6ff2ef-7c3d-4d58-9367-2d4e0a36c816", date: "89865cc2-c75d-43ed-9d9b-3a55e264f3bb" },
+  602: { campaign: "0440695a-a7db-4478-ba49-b4b6de7bf3d5", date: "70cf5f50-a5c2-4405-b3d2-df5b0ce98a7d" },
+  603: { campaign: "845b765b-7f12-4d62-8834-12918445eaa8", date: "ad1166e3-6a2c-424e-aa1e-3b6445a3349e" },
+  604: { campaign: "aab79af5-1a19-4e31-90d7-ce19a6f8ebb9", date: "2d93be9f-78e7-498a-8ccf-90e63accec6f" },
+};
+
+function buildParams(cardId: number, campaign: string, dateStart: string, dateEnd: string): object[] {
+  const tags = CARD_TAGS[cardId];
+  const params: object[] = [];
+  if (campaign) params.push({ id: tags.campaign, type: "string/=", value: campaign, target: ["variable", ["template-tag", "Abmi_Campaign"]] });
+  if (dateStart && dateEnd) params.push({ id: tags.date, type: "date/range", value: `${dateStart}~${dateEnd}`, target: ["dimension", ["template-tag", "Date"]] });
+  return params;
+}
+
 async function fetchCard(cardId: number, params: object[]) {
   try {
     const res = await fetch(`${METABASE_URL}/api/card/${cardId}/query`, {
@@ -26,17 +50,6 @@ function sum(values: (string | number | null | undefined)[]): number | null {
   const nums = values.map((v) => Number(v)).filter((n) => !isNaN(n));
   if (nums.length === 0) return null;
   return nums.reduce((a, b) => a + b, 0);
-}
-
-// ctr comes back pre-formatted (e.g. "1.36%"), so strip non-numeric
-// characters before averaging, then re-format to match that same shape.
-function avgPct(values: (string | number | null | undefined)[]): string | null {
-  const nums = values
-    .map((v) => (typeof v === "string" ? parseFloat(v.replace(/[^0-9.-]/g, "")) : Number(v)))
-    .filter((n) => !isNaN(n));
-  if (nums.length === 0) return null;
-  const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
-  return `${avg.toFixed(2)}%`;
 }
 
 // Merge Card 203 rows [Channel, Impressions, Clicks, CTR] across campaigns.
@@ -81,17 +94,12 @@ function mergeChannelClicks(rowSets: unknown[][][]): unknown[][] {
 }
 
 async function fetchContentForCampaign(campaign: string, dateStart: string, dateEnd: string) {
-  const params: object[] = [];
-  if (campaign)  params.push({ id: "campaign",   type: "string/=",   value: campaign,  target: ["variable", ["template-tag", "Abmi_Campaign"]] });
-  if (dateStart) params.push({ id: "date_start", type: "date/range",  value: dateStart, target: ["variable", ["template-tag", "Date"]] });
-  if (dateEnd)   params.push({ id: "date_end",   type: "date/range",  value: dateEnd,   target: ["variable", ["template-tag", "Date"]] });
-
   const [rows200, rows201, rows202, rows203, rows204] = await Promise.all([
-    fetchCard(600, params),
-    fetchCard(601, params),
-    fetchCard(602, params),
-    fetchCard(603, params),
-    fetchCard(604, params),
+    fetchCard(600, buildParams(600, campaign, dateStart, dateEnd)),
+    fetchCard(601, buildParams(601, campaign, dateStart, dateEnd)),
+    fetchCard(602, buildParams(602, campaign, dateStart, dateEnd)),
+    fetchCard(603, buildParams(603, campaign, dateStart, dateEnd)),
+    fetchCard(604, buildParams(604, campaign, dateStart, dateEnd)),
   ]);
 
   return {
@@ -115,10 +123,20 @@ export async function GET(req: NextRequest) {
   }
 
   const perCampaign = await Promise.all(campaigns.map((c) => fetchContentForCampaign(c, dateStart, dateEnd)));
+  const totalImpressions = sum(perCampaign.map((r) => r.impressions));
+  const totalClicks = sum(perCampaign.map((r) => r.clicks));
+  // Recompute CTR from the summed totals rather than averaging each
+  // campaign's already-formatted percentage — averaging percentages ignores
+  // how much each campaign actually contributed (e.g. a low-volume campaign
+  // with a high CTR would skew the average even though it barely affects
+  // the true clicks/impressions ratio).
+  const ctr = totalImpressions && totalClicks
+    ? `${((totalClicks / totalImpressions) * 100).toFixed(2)}%`
+    : null;
   return cachedJson({
-    impressions:      sum(perCampaign.map((r) => r.impressions)),
-    clicks:           sum(perCampaign.map((r) => r.clicks)),
-    ctr:              avgPct(perCampaign.map((r) => r.ctr)),
+    impressions:      totalImpressions,
+    clicks:           totalClicks,
+    ctr,
     channelBreakdown: mergeChannelBreakdown(perCampaign.map((r) => r.channelBreakdown)),
     channelClicks:    mergeChannelClicks(perCampaign.map((r) => r.channelClicks)),
   });
