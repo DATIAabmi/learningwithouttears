@@ -202,7 +202,7 @@ function ClicksDonutChart({ rows }: { rows: ChannelClickRow[] }) {
 
 // ─── Gated Content Table ──────────────────────────────────────────────────────
 
-function GatedContentTable({ campaign, dateStart, dateEnd }: { campaign: string[]; dateStart: string; dateEnd: string }) {
+function GatedContentTable({ campaign, dateStart, dateEnd, channel }: { campaign: string[]; dateStart: string; dateEnd: string; channel: string[] }) {
   const [rows, setRows] = useState<GatedRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -227,11 +227,12 @@ function GatedContentTable({ campaign, dateStart, dateEnd }: { campaign: string[
     if (campaign.length) params.set("campaign",  campaign.join(","));
     if (dateStart)       params.set("dateStart", dateStart);
     if (dateEnd)         params.set("dateEnd",   dateEnd);
+    if (channel.length)  params.set("channel",   channel.join(","));
     fetch(`/api/q205-data?${params.toString()}`)
       .then((r) => r.json())
       .then((d) => { setRows(d.rows ?? []); setLoading(false); })
       .catch(() => { setError("Failed to load"); setLoading(false); });
-  }, [campaign, dateStart, dateEnd]);
+  }, [campaign, dateStart, dateEnd, channel]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -452,7 +453,7 @@ export default function Page() {
             </div>
 
             {/* Gated Content table */}
-            <GatedContentTable campaign={campaign} dateStart={dateStart} dateEnd={dateEnd} />
+            <GatedContentTable campaign={campaign} dateStart={dateStart} dateEnd={dateEnd} channel={filterChannel} />
           </>
         )}
       </div>
