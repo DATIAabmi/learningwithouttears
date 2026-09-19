@@ -128,12 +128,39 @@ function ChannelBreakdownTable({ rows }: { rows: ChannelBreakdownRow[] }) {
 // Same palette as the Ecosystem Insights donut chart.
 const COLORS = ["#509EE3", "#88BF4D", "#EF8C8C", "#F9D45C", "#A989C5", "#98D9D9"];
 
-function ClicksDonutChart({ rows, selectedChannel, onSelectChannel }: {
-  rows: ChannelClickRow[];
+type Metric = "clicks" | "impressions" | "ctr";
+// ChannelBreakdownRow = [channel, impressions, clicks, ctr]
+const METRIC_CONFIG: Record<Metric, { label: string; rowIdx: 1 | 2 | 3; unit: string; totalLabel: string }> = {
+  impressions: { label: "Impressions", rowIdx: 1, unit: "impressions", totalLabel: "Total Impressions" },
+  clicks:      { label: "Clicks",      rowIdx: 2, unit: "clicks",      totalLabel: "Total Clicks" },
+  ctr:         { label: "CTR",         rowIdx: 3, unit: "",            totalLabel: "Avg CTR" },
+};
+
+function ChannelPerformancePanel({ rows, selectedChannel, onSelectChannel }: {
+  rows: ChannelBreakdownRow[];
   selectedChannel: string | null;
   onSelectChannel: (channel: string) => void;
 }) {
-  const total = rows.reduce((s, r) => s + (r[1] ?? 0), 0);
+  const [metric, setMetric] = useState<Metric>("clicks");
+  const cfg = METRIC_CONFIG[metric];
+  const isCtr = metric === "ctr";
+
+  // Rows with no value for the active metric (e.g. Email has no
+  // Impressions/CTR data) are excluded rather than shown as a zero-size
+  // slice, since there's nothing meaningful to plot for them on this tab.
+  const valid = rows
+    .map((row) => {
+      const raw = row[cfg.rowIdx];
+      const n = typeof raw === "string" ? parseFloat(raw) : raw;
+      return { label: String(row[0]), value: typeof n === "number" && !isNaN(n) ? n : null };
+    })
+    .filter((r): r is { label: string; value: number } => r.value !== null);
+
+  const total = valid.reduce((s, r) => s + r.value, 0);
+  const center = isCtr
+    ? (valid.length ? `${(total / valid.length).toFixed(2)}%` : "—")
+    : Math.round(total).toLocaleString();
+
   const R = 70, SW = 36, CX = 100, CY = 100;
   const circumference = 2 * Math.PI * R;
 
@@ -142,59 +169,75 @@ function ClicksDonutChart({ rows, selectedChannel, onSelectChannel }: {
   // +0.5 dasharray pad plus butt linecap closes the hairline seam between
   // adjacent segments that would otherwise let the gray track show through.
   let cumPct = 0;
-  const segments = rows.map((row, i) => {
-    const pct = total > 0 ? (row[1] ?? 0) / total : 0;
+  const segments = valid.map((row, i) => {
+    const pct = total > 0 ? row.value / total : 0;
     const arcStart = cumPct * circumference;
     cumPct += pct;
-    return { label: row[0], clicks: row[1] ?? 0, pct, arcStart, color: COLORS[i % COLORS.length] };
+    return { label: row.label, value: row.value, pct, arcStart, color: COLORS[i % COLORS.length] };
   });
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="bg-gray-900 text-white px-5 py-3">
-        <span className="font-bold text-sm tracking-wide uppercase">Channel Performance By Clicks</span>
+        <span className="font-bold text-sm tracking-wide uppercase">Channel Performance</span>
       </div>
-      <div className="flex items-center gap-8 w-full p-4">
-        <div className="shrink-0">
-          <svg viewBox="0 0 200 200" width={180} height={180}>
-            <circle cx={CX} cy={CY} r={R} fill="none" stroke="#f3f4f6" strokeWidth={SW} />
-            <g transform={`rotate(-90 ${CX} ${CY})`}>
-              {segments.map((seg, i) => (
-                <circle key={i} cx={CX} cy={CY} r={R} fill="none"
-                  stroke={seg.color} strokeWidth={SW}
-                  strokeLinecap="butt"
-                  strokeDasharray={`${seg.pct * circumference + 0.5} ${circumference}`}
-                  strokeDashoffset={-seg.arcStart}
-                  opacity={selectedChannel === null || selectedChannel === seg.label ? 1 : 0.25}
-                  style={{ cursor: "pointer", transition: "opacity 0.15s" }}
-                  onClick={() => onSelectChannel(seg.label)} />
-              ))}
-            </g>
-            <text x={CX} y={CY - 8} textAnchor="middle" fontSize={11} fill="#6b7280" fontFamily="inherit">Total Clicks</text>
-            <text x={CX} y={CY + 10} textAnchor="middle" fontSize={14} fontWeight="700" fill="#111827" fontFamily="inherit">
-              {Math.round(total).toLocaleString()}
-            </text>
-          </svg>
-        </div>
-        <div className="flex flex-col gap-3 flex-1 min-w-0">
-          {segments.map((seg, i) => (
-            <div key={i}
-              onClick={() => onSelectChannel(seg.label)}
-              className="flex items-center gap-3 -mx-2 px-2 py-1 rounded-lg cursor-pointer transition-colors"
-              style={{ backgroundColor: selectedChannel === seg.label ? "#f3f4f6" : "transparent", opacity: selectedChannel === null || selectedChannel === seg.label ? 1 : 0.5 }}>
-              <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-medium text-gray-800 truncate">{seg.label}</span>
-                  <span className="text-sm font-semibold tabular-nums text-gray-800 shrink-0">{(seg.pct * 100).toFixed(1)}%</span>
-                </div>
-                <div className="mt-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: `${seg.pct * 100}%`, backgroundColor: seg.color }} />
-                </div>
-                <div className="text-xs text-gray-400 mt-0.5 tabular-nums">{Math.round(seg.clicks).toLocaleString()} clicks</div>
-              </div>
-            </div>
+      <div className="p-4">
+        <div className="inline-flex items-center gap-1 p-1 bg-gray-100 rounded-lg mb-4">
+          {(Object.keys(METRIC_CONFIG) as Metric[]).map((m) => (
+            <button key={m} type="button" onClick={() => setMetric(m)}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                metric === m ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+              }`}>
+              {METRIC_CONFIG[m].label}
+            </button>
           ))}
+        </div>
+        <div className="flex items-center gap-8 w-full">
+          <div className="shrink-0">
+            <svg viewBox="0 0 200 200" width={180} height={180}>
+              <circle cx={CX} cy={CY} r={R} fill="none" stroke="#f3f4f6" strokeWidth={SW} />
+              <g transform={`rotate(-90 ${CX} ${CY})`}>
+                {segments.map((seg, i) => (
+                  <circle key={i} cx={CX} cy={CY} r={R} fill="none"
+                    stroke={seg.color} strokeWidth={SW}
+                    strokeLinecap="butt"
+                    strokeDasharray={`${seg.pct * circumference + 0.5} ${circumference}`}
+                    strokeDashoffset={-seg.arcStart}
+                    opacity={selectedChannel === null || selectedChannel === seg.label ? 1 : 0.25}
+                    style={{ cursor: "pointer", transition: "opacity 0.15s" }}
+                    onClick={() => onSelectChannel(seg.label)} />
+                ))}
+              </g>
+              <text x={CX} y={CY - 8} textAnchor="middle" fontSize={11} fill="#6b7280" fontFamily="inherit">{cfg.totalLabel}</text>
+              <text x={CX} y={CY + 10} textAnchor="middle" fontSize={14} fontWeight="700" fill="#111827" fontFamily="inherit">
+                {center}
+              </text>
+            </svg>
+          </div>
+          <div className="flex flex-col gap-3 flex-1 min-w-0">
+            {segments.map((seg, i) => (
+              <div key={i}
+                onClick={() => onSelectChannel(seg.label)}
+                className="flex items-center gap-3 -mx-2 px-2 py-1 rounded-lg cursor-pointer transition-colors"
+                style={{ backgroundColor: selectedChannel === seg.label ? "#f3f4f6" : "transparent", opacity: selectedChannel === null || selectedChannel === seg.label ? 1 : 0.5 }}>
+                <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium text-gray-800 truncate">{seg.label}</span>
+                    <span className="text-sm font-semibold tabular-nums text-gray-800 shrink-0">
+                      {isCtr ? `${seg.value.toFixed(2)}%` : `${(seg.pct * 100).toFixed(1)}%`}
+                    </span>
+                  </div>
+                  <div className="mt-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${seg.pct * 100}%`, backgroundColor: seg.color }} />
+                  </div>
+                  {!isCtr && (
+                    <div className="text-xs text-gray-400 mt-0.5 tabular-nums">{Math.round(seg.value).toLocaleString()} {cfg.unit}</div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -452,8 +495,8 @@ export default function Page() {
                 the left narrows to whatever channel is selected. */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               <ChannelBreakdownTable rows={filteredBreakdown} />
-              <ClicksDonutChart
-                rows={data?.channelClicks ?? []}
+              <ChannelPerformancePanel
+                rows={data?.channelBreakdown ?? []}
                 selectedChannel={filterChannel.length === 1 ? filterChannel[0] : null}
                 onSelectChannel={(ch) => setFilterChannel((cur) => (cur.length === 1 && cur[0] === ch ? [] : [ch]))}
               />
