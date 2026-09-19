@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useFilter } from "./FilterContext";
-
-const COLORS = ["#509EE3", "#88BF4D", "#EF8C8C", "#F9D45C", "#A989C5", "#98D9D9"];
+import { channelColor } from "@/lib/channelColors";
 
 export type Row = [string, number, number];
 
@@ -21,7 +20,7 @@ function DonutChart({ rows }: { rows: Row[] }) {
     const pct = total > 0 ? row[1] / total : 0;
     const arcStart = cumPct * circumference;
     cumPct += pct;
-    return { label: row[0], clicks: row[1], pct, arcStart, color: COLORS[i % COLORS.length] };
+    return { label: row[0], clicks: row[1], pct, arcStart, color: channelColor(row[0], i) };
   });
 
   const fmtNum = (n: number) => Math.round(n).toLocaleString();

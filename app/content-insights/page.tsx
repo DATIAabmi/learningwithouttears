@@ -7,6 +7,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
+import { channelColor } from "@/lib/channelColors";
 import { useRegisterCsvExport } from "@/components/ExportContext";
 
 // ─── Metric Description modal ──────────────────────────────────────────────────
@@ -125,9 +126,6 @@ function ChannelBreakdownTable({ rows }: { rows: ChannelBreakdownRow[] }) {
 
 // ─── Donut Chart ──────────────────────────────────────────────────────────────
 
-// Same palette as the Ecosystem Insights donut chart.
-const COLORS = ["#509EE3", "#88BF4D", "#EF8C8C", "#F9D45C", "#A989C5", "#98D9D9"];
-
 type Metric = "clicks" | "impressions" | "ctr";
 // ChannelBreakdownRow = [channel, impressions, clicks, ctr]
 const METRIC_CONFIG: Record<Metric, { label: string; rowIdx: 1 | 2 | 3; unit: string; totalLabel: string }> = {
@@ -173,7 +171,7 @@ function ChannelPerformancePanel({ rows, selectedChannel, onSelectChannel }: {
     const pct = total > 0 ? row.value / total : 0;
     const arcStart = cumPct * circumference;
     cumPct += pct;
-    return { label: row.label, value: row.value, pct, arcStart, color: COLORS[i % COLORS.length] };
+    return { label: row.label, value: row.value, pct, arcStart, color: channelColor(row.label, i) };
   });
 
   return (
