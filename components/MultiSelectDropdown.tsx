@@ -102,7 +102,9 @@ export default function MultiSelectDropdown(props: Props) {
         style={{ minWidth }}
       >
         <span className={`text-[11px] font-bold uppercase tracking-wider shrink-0 ${active ? "text-blue-400" : "text-gray-400"}`}>
-          {label}
+          {label.split(/(ABMxi)/).map((part, i) =>
+            part === "ABMxi" ? <span key={i}>ABM<span className="lowercase">xi</span></span> : part
+          )}
         </span>
         <span className="flex-1 text-left truncate text-xs">
           {active
