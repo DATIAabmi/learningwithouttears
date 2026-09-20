@@ -64,6 +64,29 @@ export async function GET(req: NextRequest) {
     return cachedJson({ values });
   }
 
+  // Content names live in the same nested engagement array; card 592 (Leads
+  // Insights) filters on eng.asset_name, so the dropdown offers those values.
+  if (field === "content_name") {
+    const qEsc = q.replace(/"/g, "");
+    const sql = `
+      SELECT DISTINCT eng.asset_name AS content
+      FROM ${TABLE} AS sc
+      CROSS JOIN UNNEST(sc.engagement) AS eng
+      WHERE eng.asset_name IS NOT NULL AND eng.asset_name != "" AND LOWER(eng.asset_name) != "null"
+      ${q ? `AND LOWER(eng.asset_name) LIKE LOWER("%${qEsc}%")` : ""}
+      ORDER BY content
+      LIMIT 200`;
+
+    const res = await fetch(`${METABASE_URL}/api/dataset`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
+      body: JSON.stringify({ database: DB_ID, type: "native", native: { query: sql }, middleware: { "js-int-to-string?": true } }),
+    });
+    const data = await res.json();
+    const values: string[] = (data?.data?.rows ?? []).map((r: string[]) => r[0]).filter(Boolean);
+    return cachedJson({ values });
+  }
+
   const col = FIELD_MAP[field];
   if (!col) return NextResponse.json({ values: [] });
 

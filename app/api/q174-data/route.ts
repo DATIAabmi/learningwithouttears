@@ -15,7 +15,7 @@ function parseList(v: string | null): string[] {
   return (v ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 }
 
-async function fetchForCampaign(campaign: string, dateStart: string, dateEnd: string) {
+async function fetchForCampaign(campaign: string, dateStart: string, dateEnd: string, contentName: string) {
   const parameters: object[] = [];
 
   if (campaign) parameters.push({
@@ -29,6 +29,13 @@ async function fetchForCampaign(campaign: string, dateStart: string, dateEnd: st
     type: "date/range",
     value: `${dateStart}~${dateEnd}`,
     target: ["dimension", ["template-tag", "Last_Updated"]],
+  });
+
+  if (contentName) parameters.push({
+    id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    type: "string/=",
+    value: contentName,
+    target: ["variable", ["template-tag", "Content_Name"]],
   });
 
   const res = await fetch(`${METABASE_URL}/api/card/592/query`, {
@@ -62,19 +69,33 @@ export async function GET(req: NextRequest) {
     const districts   = parseList(searchParams.get("district"));
     const states      = parseList(searchParams.get("state"));
     const jobFunctions = parseList(searchParams.get("jobFunction"));
+    const contentNames = searchParams.getAll("contentName").map((s) => s.trim()).filter(Boolean);
     const dateStart   = searchParams.get("dateStart")   ?? "";
     const dateEnd     = searchParams.get("dateEnd")     ?? "";
 
-    const results = campaigns.length > 0
-      ? await Promise.all(campaigns.map((c) => fetchForCampaign(c, dateStart, dateEnd)))
-      : [await fetchForCampaign("", dateStart, dateEnd)];
+    // The Content_Name tag is a single text value, so it's fetched once per
+    // (campaign x content name) and the results are unioned below.
+    const campaignList = campaigns.length > 0 ? campaigns : [""];
+    const contentList = contentNames.length > 0 ? contentNames : [""];
+    const results = await Promise.all(
+      campaignList.flatMap((c) => contentList.map((n) => fetchForCampaign(c, dateStart, dateEnd, n)))
+    );
 
     const first = results.find((r) => r !== null);
     if (!first) {
       return NextResponse.json({ cols: [], rows: [], error: "Metabase error" });
     }
     const cols = first.cols;
-    let rows = results.flatMap((r) => r?.rows ?? []);
+    // Total_Downloads is the row's full count (not per-content), so a row
+    // matching several selected content names comes back from each call with
+    // the same value -- keep one copy rather than summing.
+    const seen = new Set<string>();
+    let rows = results.flatMap((r) => r?.rows ?? []).filter((row) => {
+      const key = row.slice(0, -1).join("\x00");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     // District/State/Job Function are real per-row columns here, so multiple
     // selections can be applied locally after fetching.
