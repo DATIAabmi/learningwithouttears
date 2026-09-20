@@ -10,7 +10,7 @@ const TABS = [
   { label: "Leads Insights", href: "/leads-insights" },
   { label: "Topic Insights", href: "/topic-insights" },
   { label: "Content Insights", href: "/content-insights" },
-  { label: "Ad Samples", href: "/ad-samples" },
+  { label: "Campaign Creative", href: "/ad-samples" },
 ];
 
 export default function DashboardTabs() {

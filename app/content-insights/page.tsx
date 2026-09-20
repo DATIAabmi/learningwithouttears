@@ -2,12 +2,13 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink, Info, Loader2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Download, ExternalLink, Info, Loader2, X } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
 import { channelColor } from "@/lib/channelColors";
+import { exportDivToPng } from "@/lib/exportChartToPng";
 import { useRegisterCsvExport } from "@/components/ExportContext";
 
 // ─── Metric Description modal ──────────────────────────────────────────────────
@@ -89,7 +90,11 @@ function ScalarCard({ label, value }: { label: string; value: string }) {
 
 // ─── Channel Breakdown Table ──────────────────────────────────────────────────
 
-function ChannelBreakdownTable({ rows }: { rows: ChannelBreakdownRow[] }) {
+function ChannelBreakdownTable({ rows, selectedChannel, onSelectChannel }: {
+  rows: ChannelBreakdownRow[];
+  selectedChannel: string | null;
+  onSelectChannel: (channel: string) => void;
+}) {
   const headers = ["Channel", "Impressions", "Clicks", "CTR"];
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
@@ -109,14 +114,27 @@ function ChannelBreakdownTable({ rows }: { rows: ChannelBreakdownRow[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, i) => (
-              <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="px-4 py-3 text-left text-gray-800 font-medium">{String(row[0] ?? "")}</td>
-                <td className="px-4 py-3 text-right tabular-nums text-gray-800">{fmtNum(row[1])}</td>
-                <td className="px-4 py-3 text-right tabular-nums text-gray-800">{fmtNum(row[2])}</td>
-                <td className="px-4 py-3 text-right tabular-nums text-gray-800">{fmtPct(row[3])}</td>
-              </tr>
-            ))}
+            {rows.map((row, i) => {
+              const ch = String(row[0] ?? "");
+              const color = channelColor(ch, i);
+              const isActive = selectedChannel === ch;
+              return (
+                <tr key={i}
+                  onClick={() => onSelectChannel(ch)}
+                  className="border-b border-gray-100 cursor-pointer transition-colors hover:bg-gray-50"
+                  style={{ backgroundColor: isActive ? color + "18" : undefined }}>
+                  <td className="px-4 py-3 text-left font-medium" style={{ color: isActive ? color : "#1f2937" }}>
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                      {ch}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right tabular-nums text-gray-800">{fmtNum(row[1])}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-gray-800">{fmtNum(row[2])}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-gray-800">{fmtPct(row[3])}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -140,6 +158,7 @@ function ChannelPerformancePanel({ rows, selectedChannel, onSelectChannel }: {
   onSelectChannel: (channel: string) => void;
 }) {
   const [metric, setMetric] = useState<Metric>("clicks");
+  const cardRef = useRef<HTMLDivElement>(null);
   const cfg = METRIC_CONFIG[metric];
   const isCtr = metric === "ctr";
 
@@ -175,9 +194,14 @@ function ChannelPerformancePanel({ rows, selectedChannel, onSelectChannel }: {
   });
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-      <div className="bg-gray-900 text-white px-5 py-3">
+    <div ref={cardRef} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-gray-900 text-white px-5 py-3 flex items-center justify-between">
         <span className="font-bold text-sm tracking-wide uppercase">Channel Performance</span>
+        <button type="button" title="Export as PNG" aria-label="Export chart as PNG"
+          onClick={() => cardRef.current && exportDivToPng(cardRef.current, `channel-performance-${metric}`)}
+          className="text-gray-400 hover:text-white transition-colors">
+          <Download size={14} />
+        </button>
       </div>
       <div className="p-4">
         <div className="inline-flex items-center gap-1 p-1 bg-gray-100 rounded-lg mb-4">
@@ -492,7 +516,11 @@ export default function Page() {
                 stays clickable as a cross-filter; the breakdown table on
                 the left narrows to whatever channel is selected. */}
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <ChannelBreakdownTable rows={filteredBreakdown} />
+              <ChannelBreakdownTable
+                rows={filteredBreakdown}
+                selectedChannel={filterChannel.length === 1 ? filterChannel[0] : null}
+                onSelectChannel={(ch) => setFilterChannel((cur) => (cur.length === 1 && cur[0] === ch ? [] : [ch]))}
+              />
               <ChannelPerformancePanel
                 rows={data?.channelBreakdown ?? []}
                 selectedChannel={filterChannel.length === 1 ? filterChannel[0] : null}
