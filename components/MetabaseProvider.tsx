@@ -74,7 +74,7 @@ export default function MetabaseProviderWrapper({
   return (
     <MetabaseProvider
       authConfig={authConfig}
-      theme={{ fontFamily: "inherit" }}
+      theme={{ fontFamily: "inherit", fontSize: "16.8px" }}
       pluginsConfig={pluginsConfig}
     >
       {children}

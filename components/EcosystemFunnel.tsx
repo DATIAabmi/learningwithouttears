@@ -185,15 +185,15 @@ export default function EcosystemFunnel({ onDataLoaded }: { onDataLoaded?: (data
               >
                 <h3
                   className="font-black text-gray-900 leading-none"
-                  style={{ fontSize: 16, letterSpacing: "-0.01em" }}
+                  style={{ fontSize: 19, letterSpacing: "-0.01em" }}
                 >
                   {stage.label}
                 </h3>
-                <p className="text-gray-500 mt-0.5 leading-snug whitespace-nowrap" style={{ fontSize: 10 }}>
+                <p className="text-gray-500 mt-0.5 leading-snug" style={{ fontSize: 12 }}>
                   {stage.description}
                 </p>
                 {stage.goal && (
-                  <p className="font-semibold text-green-600 mt-0.5" style={{ fontSize: 10 }}>
+                  <p className="font-semibold text-green-600 mt-0.5" style={{ fontSize: 12 }}>
                     {stage.goal}
                   </p>
                 )}
@@ -208,13 +208,13 @@ export default function EcosystemFunnel({ onDataLoaded }: { onDataLoaded?: (data
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <span
                     className="block uppercase tracking-widest text-gray-400 font-semibold"
-                    style={{ fontSize: 11, marginBottom: 2 }}
+                    style={{ fontSize: 13, marginBottom: 2 }}
                   >
                     {stage.shortLabel ?? stage.label}
                   </span>
                   <span
                     className="block font-black text-white tabular-nums"
-                    style={{ fontSize: 20, lineHeight: 1.1, letterSpacing: "-0.02em" }}
+                    style={{ fontSize: 24, lineHeight: 1.1, letterSpacing: "-0.02em" }}
                   >
                     {stage.value}
                   </span>
@@ -228,13 +228,13 @@ export default function EcosystemFunnel({ onDataLoaded }: { onDataLoaded?: (data
                   <div className="ef-card-goal shrink-0 flex flex-col">
                     <span
                       className="block uppercase tracking-widest text-gray-400 font-semibold"
-                      style={{ fontSize: 9, marginBottom: 2 }}
+                      style={{ fontSize: 11, marginBottom: 2 }}
                     >
                       % of Goal
                     </span>
                     <span
                       className="block font-black text-white tabular-nums"
-                      style={{ fontSize: 16, lineHeight: 1.1 }}
+                      style={{ fontSize: 19, lineHeight: 1.1 }}
                     >
                       {stage.goalValue}
                     </span>

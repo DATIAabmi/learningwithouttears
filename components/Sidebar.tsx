@@ -48,7 +48,7 @@ export default function Sidebar() {
       {/* Branding */}
       <div className="px-4 py-4 border-b border-gray-100">
         {lastUpdated && (
-          <p className="text-[10px] text-blue-500 font-medium mb-3">
+          <p className="text-[12px] text-blue-500 font-medium mb-3">
             Last Updated: {lastUpdated}
           </p>
         )}
@@ -59,7 +59,7 @@ export default function Sidebar() {
           height={35}
           priority
         />
-        <p className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase mt-2">
+        <p className="text-[12px] font-semibold tracking-widest text-gray-400 uppercase mt-2">
           Intelligence Dashboard
         </p>
       </div>

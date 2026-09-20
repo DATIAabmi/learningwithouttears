@@ -120,14 +120,14 @@ function GeographyTable({
             <div className="flex items-center justify-center h-48 text-gray-400 text-sm bg-white">No results</div>
           ) : (
             <div className="flex flex-col lg:flex-row gap-4 p-4">
-              <div className="lg:w-1/2 shrink-0 flex items-start">
+              <div className="lg:w-2/5 shrink-0 flex items-start">
                 <UsStateChoropleth
                   valueByState={valueByState}
                   selectedState={selectedState ?? undefined}
                   onStateClick={(abbr) => setSelectedState((s) => s === abbr ? null : abbr)}
                 />
               </div>
-              <div className="lg:w-1/2 min-w-0 overflow-auto">
+              <div className="lg:w-3/5 min-w-0 overflow-auto">
                 <table className="text-sm border-collapse w-full">
                   <thead>
                     <tr className="border-b border-gray-200">

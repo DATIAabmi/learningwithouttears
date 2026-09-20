@@ -465,7 +465,7 @@ export default function DashboardEmbed({
         .querySelectorAll<HTMLElement>('[role="columnheader"]')
         .forEach((el) => {
           el.style.setProperty("font-family", "'Lato', sans-serif", "important");
-          el.style.setProperty("font-size",   "12px",               "important");
+          el.style.setProperty("font-size",   "14px",               "important");
           el.style.setProperty("text-align",  "center",             "important");
         });
 
@@ -910,7 +910,7 @@ export default function DashboardEmbed({
            table's pre-computed data-row Y positions stay correct. */
         .mb-embed [role="columnheader"] {
           font-family: 'Lato', sans-serif !important;
-          font-size: 12px !important;
+          font-size: 14px !important;
           text-align: center !important;
         }
 
@@ -922,7 +922,7 @@ export default function DashboardEmbed({
           text-align: center !important;
           justify-content: center !important;
           font-family: 'Lato', sans-serif !important;
-          font-size: 14px !important;
+          font-size: 17px !important;
         }
 
         /* stretchColumns: break sticky on the header rowgroup */
@@ -984,7 +984,7 @@ export default function DashboardEmbed({
         .mb-embed [class*="scalar-value"],
         .mb-embed [class*="ScalarWrapper"] h1,
         .mb-embed [class*="ScalarWrapper"] h2 {
-          font-size: 2rem !important;
+          font-size: 2.4rem !important;
           line-height: 1.2 !important;
         }
 

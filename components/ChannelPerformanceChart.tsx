@@ -48,8 +48,8 @@ function DonutChart({ rows }: { rows: Row[] }) {
             ))}
           </g>
           {/* Center label */}
-          <text x={CX} y={CY - 8} textAnchor="middle" fontSize={10} fill="#6b7280" fontFamily="inherit">Total Engagements</text>
-          <text x={CX} y={CY + 12} textAnchor="middle" fontSize={15} fontWeight="700" fill="#111827" fontFamily="inherit">
+          <text x={CX} y={CY - 8} textAnchor="middle" fontSize={12} fill="#6b7280" fontFamily="inherit">Total Engagements</text>
+          <text x={CX} y={CY + 12} textAnchor="middle" fontSize={18} fontWeight="700" fill="#111827" fontFamily="inherit">
             {fmtNum(total)}
           </text>
         </svg>

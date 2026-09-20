@@ -26,7 +26,7 @@ export default function QuestionEmbed({
   // to avoid Metabase's "missing required parameters" error.
   if (campaignSqlKey && campaign.length === 0) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#9ca3af", fontSize: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#9ca3af", fontSize: 17 }}>
         Select an ABMxi Campaign to load data.
       </div>
     );

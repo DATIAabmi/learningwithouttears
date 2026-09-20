@@ -185,7 +185,7 @@ function AdSamplesEmbed() {
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12,
           }}>
             <div style={{ width: 36, height: 36, border: "3px solid #e5e7eb", borderTopColor: "#6b7280", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-            <span style={{ fontSize: 13, color: "#9ca3af" }}>{LOADING_MSGS[msgIdx]}</span>
+            <span style={{ fontSize: 16, color: "#9ca3af" }}>{LOADING_MSGS[msgIdx]}</span>
             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
           </div>
         )}

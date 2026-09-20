@@ -53,11 +53,11 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
           <h1
             className="font-bold text-gray-900 leading-tight"
-            style={{ fontFamily: "'Lato', sans-serif", fontSize: "30px", letterSpacing: "-0.5px" }}
+            style={{ fontFamily: "'Lato', sans-serif", fontSize: "36px", letterSpacing: "-0.5px" }}
           >
             ABMxi
           </h1>
-          <p className="mt-1 font-medium" style={{ fontSize: "12px", color: "#6b8cba" }}>
+          <p className="mt-1 font-medium" style={{ fontSize: "14px", color: "#6b8cba" }}>
             {subtitle}
           </p>
           <div className="h-0.5 bg-red-500 mt-1.5 rounded-full" style={{ width: 44 }} />

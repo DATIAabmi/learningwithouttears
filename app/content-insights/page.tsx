@@ -32,12 +32,12 @@ function MetricDescriptionModal({ onClose }: { onClose: () => void }) {
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <span style={{ fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Metric Description</span>
+          <span style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Metric Description</span>
           <button type="button" onClick={onClose} style={{ color: "#9ca3af", cursor: "pointer", background: "none", border: "none", padding: 0 }}>
             <X size={16} />
           </button>
         </div>
-        <p style={{ fontSize: 12, color: "#4b5563", lineHeight: 1.6 }}>{METRIC_DESCRIPTION}</p>
+        <p style={{ fontSize: 14, color: "#4b5563", lineHeight: 1.6 }}>{METRIC_DESCRIPTION}</p>
       </div>
     </div>,
     document.body
@@ -230,8 +230,8 @@ function ChannelPerformancePanel({ rows, selectedChannel, onSelectChannel }: {
                     onClick={() => onSelectChannel(seg.label)} />
                 ))}
               </g>
-              <text x={CX} y={CY - 8} textAnchor="middle" fontSize={11} fill="#6b7280" fontFamily="inherit">{cfg.totalLabel}</text>
-              <text x={CX} y={CY + 10} textAnchor="middle" fontSize={14} fontWeight="700" fill="#111827" fontFamily="inherit">
+              <text x={CX} y={CY - 8} textAnchor="middle" fontSize={13} fill="#6b7280" fontFamily="inherit">{cfg.totalLabel}</text>
+              <text x={CX} y={CY + 10} textAnchor="middle" fontSize={17} fontWeight="700" fill="#111827" fontFamily="inherit">
                 {center}
               </text>
             </svg>
