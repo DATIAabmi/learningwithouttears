@@ -73,7 +73,7 @@ export default function Sidebar() {
             <Link
               key={item.label}
               href={item.href}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[0.84rem] font-medium transition-colors text-left ${
                 isActive
                   ? "bg-indigo-50 text-indigo-700"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -91,7 +91,7 @@ export default function Sidebar() {
 
       {/* Bottom */}
       <div className="px-3 py-4 border-t border-gray-100">
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors text-left">
+        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[0.84rem] font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors text-left">
           <SlidersHorizontal size={16} className="text-gray-400" />
           Filters
         </button>
