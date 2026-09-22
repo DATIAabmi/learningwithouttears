@@ -245,9 +245,11 @@ function DataTable({
                   onClick={() => onSort({ col: j, dir: active && sort.dir === "desc" ? "asc" : "desc" })}
                   className="sticky z-10 bg-white px-4 py-3 font-bold text-gray-900 cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200"
                   style={{ textAlign: left ? "left" : "center", top: headerTop, ...(col.display_name === "Engagements" ? { minWidth: 100 } : {}) }}>
-                  <span className={`inline-flex flex-wrap items-center gap-0.5 ${left ? "justify-start" : "justify-center"}`}>
-                    <span style={col.display_name === "Engagements" ? { whiteSpace: "nowrap" } : undefined}>{label}</span>
-                    {active && (sort.dir === "asc" ? <ArrowUp size={10} className="shrink-0" /> : <ArrowDown size={10} className="shrink-0" />)}
+                  <span className={`inline-flex items-center gap-0.5 whitespace-nowrap ${left ? "justify-start" : "justify-center"}`}>
+                    <span>{label}</span>
+                    {active
+                      ? (sort.dir === "asc" ? <ArrowUp size={10} className="shrink-0" /> : <ArrowDown size={10} className="shrink-0" />)
+                      : <ArrowUpDown size={10} className="opacity-30 shrink-0" />}
                   </span>
                 </th>
               );
