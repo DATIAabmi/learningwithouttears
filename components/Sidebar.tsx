@@ -55,8 +55,8 @@ export default function Sidebar() {
         <Image
           src="/datia-k12-logo.png"
           alt="DATIA K12"
-          width={159}
-          height={35}
+          width={140}
+          height={40}
           priority
         />
         <p className="text-[12px] font-semibold tracking-widest text-gray-400 uppercase mt-2">
