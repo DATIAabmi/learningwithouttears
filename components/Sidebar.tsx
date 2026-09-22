@@ -18,7 +18,7 @@ import {
 
 const navItems = [
   { label: "Ecosystem Insights", icon: Globe, href: "/" },
-  { label: "Engaged Users by District", icon: Users, href: "/engaged-users" },
+  { label: "Engaged Users\nby District", icon: Users, href: "/engaged-users" },
   { label: "Account Intelligence", icon: Sparkles, href: "/ai-opportunity-feed" },
   // School Board Minutes tab hidden for now — keep the route/page intact, will re-add to nav later.
   // { label: "School Board Minutes", icon: ScrollText, href: "/school-board-minutes" },
@@ -82,7 +82,7 @@ export default function Sidebar() {
                 size={16}
                 className={isActive ? "text-indigo-600" : "text-gray-400"}
               />
-              {item.label}
+              <span style={{ whiteSpace: "pre-line" }}>{item.label}</span>
             </Link>
           );
         })}
