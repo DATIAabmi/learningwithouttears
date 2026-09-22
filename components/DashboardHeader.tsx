@@ -76,27 +76,22 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
         <div className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 rounded-lg bg-white">
           <CalendarSearch size={14} className="text-orange-400 shrink-0" />
           <span className="text-gray-700 text-xs font-bold uppercase shrink-0">Date Range:</span>
-          {/* Native date inputs always render their own "mm/dd/yyyy"-style
-              skeleton when empty (placeholder is ignored) — text is made
-              transparent when there's no value so a shorter "Start"/"End"
-              label can sit on top instead, saving width. */}
-          <span className="relative inline-block">
+          {/* Native date inputs always render their own calendar-icon button
+              (part of the UA shadow DOM) that transparent text can't hide —
+              the input is shrunk to near-zero width and made fully
+              transparent when empty so a shorter "Start"/"End" label can
+              sit on top instead, hiding the icon along with the text. */}
+          <div className="relative flex items-center">
+            {!dateStart && <span className="absolute left-0 text-xs text-gray-400 pointer-events-none select-none">Start</span>}
             <input type="date" value={dateStart} onChange={(e) => setDateStart(e.target.value)}
-              className="text-xs bg-transparent border-none outline-none cursor-pointer"
-              style={{ width: dateStart ? 110 : 70, color: dateStart ? "#374151" : "transparent" }} />
-            {!dateStart && (
-              <span className="absolute inset-0 flex items-center text-xs text-gray-400 pointer-events-none">Start</span>
-            )}
-          </span>
+              className={`text-xs text-gray-700 bg-transparent border-none outline-none cursor-pointer ${dateStart ? "w-[110px]" : "w-[30px] opacity-0"}`} />
+          </div>
           <span className="text-gray-400 text-xs">–</span>
-          <span className="relative inline-block">
+          <div className="relative flex items-center">
+            {!dateEnd && <span className="absolute left-0 text-xs text-gray-400 pointer-events-none select-none">End</span>}
             <input type="date" value={dateEnd} onChange={(e) => setDateEnd(e.target.value)}
-              className="text-xs bg-transparent border-none outline-none cursor-pointer"
-              style={{ width: dateEnd ? 110 : 70, color: dateEnd ? "#374151" : "transparent" }} />
-            {!dateEnd && (
-              <span className="absolute inset-0 flex items-center text-xs text-gray-400 pointer-events-none">End</span>
-            )}
-          </span>
+              className={`text-xs text-gray-700 bg-transparent border-none outline-none cursor-pointer ${dateEnd ? "w-[110px]" : "w-[28px] opacity-0"}`} />
+          </div>
           {(dateStart || dateEnd) && (
             <button onClick={() => { setDateStart(""); setDateEnd(""); }} className="text-gray-300 hover:text-gray-500 ml-0.5">
               <X size={12} />
