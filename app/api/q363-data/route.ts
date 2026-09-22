@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cachedJson } from "@/lib/apiCache";
+import { CAMPAIGNS } from "@/lib/campaigns";
 
 export const maxDuration = 30;
 
@@ -11,11 +12,18 @@ type Row = [string, number, number];
 const memCache = new Map<string, { data: Row[]; ts: number }>();
 const inflight = new Map<string, Promise<Row[]>>();
 
+// Card 663's Abmi_Campaign tag has its own UUID (verified against Metabase)
+// -- the generic "campaign" id this route used before silently no-ops
+// instead of erroring, so selecting 2 campaigns summed two full unfiltered
+// totals and doubled every value (same bug fixed in content-data,
+// leads-summary and funnel-data).
+const CAMPAIGN_TAG_ID = "f80b70c2-fef2-490d-b023-e072e5610b21";
+
 async function fetchRowsForCampaign(campaign: string, dateStart: string, dateEnd: string): Promise<Row[]> {
   const parameters: object[] = [];
   if (campaign) {
     parameters.push({
-      id: "campaign",
+      id: CAMPAIGN_TAG_ID,
       type: "string/=",
       value: campaign,
       target: ["variable", ["template-tag", "Abmi_Campaign"]],
@@ -61,8 +69,14 @@ async function getRows(campaigns: string[], dateStart: string, dateEnd: string):
   if (cached && Date.now() - cached.ts < CACHE_TTL_MS) return cached.data;
   if (!inflight.has(key)) {
     const p = (async () => {
-      const rows = campaigns.length <= 1
-        ? await fetchRowsForCampaign(campaigns[0] ?? "", dateStart, dateEnd)
+      // Selecting every known campaign should mean "everything", same as no
+      // filter -- some rows have no campaign tag at all, so an explicit
+      // Abmi_Campaign IN (...) list covering every campaign still excludes
+      // them and silently undercounts vs. the true total.
+      const isEveryKnownCampaign = campaigns.length >= CAMPAIGNS.length
+        && CAMPAIGNS.every((c) => campaigns.includes(c));
+      const rows = campaigns.length <= 1 || isEveryKnownCampaign
+        ? await fetchRowsForCampaign(isEveryKnownCampaign ? "" : (campaigns[0] ?? ""), dateStart, dateEnd)
         : mergeRows(await Promise.all(campaigns.map((c) => fetchRowsForCampaign(c, dateStart, dateEnd))));
       memCache.set(key, { data: rows, ts: Date.now() });
       inflight.delete(key);

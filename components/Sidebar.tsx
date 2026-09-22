@@ -12,7 +12,6 @@ import {
   BookOpen,
   FileText,
   MonitorPlay,
-  SlidersHorizontal,
   Sparkles,
   MapPin,
 } from "lucide-react";
@@ -59,7 +58,7 @@ export default function Sidebar() {
           height={40}
           priority
         />
-        <p className="text-[12px] font-semibold tracking-widest text-gray-400 uppercase mt-2">
+        <p className="text-[10px] font-semibold tracking-wide text-gray-400 uppercase mt-2 whitespace-nowrap">
           Intelligence Dashboard
         </p>
       </div>
@@ -88,14 +87,6 @@ export default function Sidebar() {
           );
         })}
       </nav>
-
-      {/* Bottom */}
-      <div className="px-3 py-4 border-t border-gray-100">
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[0.84rem] font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors text-left">
-          <SlidersHorizontal size={16} className="text-gray-400" />
-          Filters
-        </button>
-      </div>
     </aside>
   );
 }

@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { cachedJson } from "@/lib/apiCache";
+import { CAMPAIGNS } from "@/lib/campaigns";
 
 export const maxDuration = 60;
 
@@ -39,18 +40,36 @@ function mergeLabeledCounts(rowSets: [string, number][][]): [string, number][] {
   return [...totals.entries()].sort((a, b) => b[1] - a[1]);
 }
 
-async function fetchSummaryForCampaign(campaign: string, dateStart: string, dateEnd: string) {
-  const params: object[] = [];
-  if (campaign) params.push({ id: "campaign", type: "string/=", value: campaign, target: ["variable", ["template-tag", "Abmi_Campaign"]] });
-  if (dateStart && dateEnd) params.push({ id: "date", type: "date/range", value: `${dateStart}~${dateEnd}`, target: ["dimension", ["template-tag", "Last_Updated"]] });
+// Each card's Abmi_Campaign tag has its own distinct UUID (verified against
+// Metabase) -- the generic "campaign" id this route used before silently
+// no-ops instead of erroring, so selecting 2 campaigns summed two full
+// unfiltered totals and doubled every number (same bug fixed previously in
+// content-data/route.ts, found again here when C1+C2 became the default
+// selection).
+const CAMPAIGN_TAG_ID: Record<number, string> = {
+  593: "4bd962bf-a3a7-4808-a0c0-46af111eb5da",
+  594: "d4d1494d-c3d0-4b77-8a3e-c6a4bbcbbd35",
+  595: "2d10cfe6-c9af-409d-b5bb-c58201a58020",
+  596: "0a8fa3f6-d911-4599-82be-8e9ede9d9936",
+  597: "30b39da2-2ff3-4eb8-93c7-920dcfbb65cd",
+  725: "b1a1c001-0001-4001-8001-000000000001",
+};
 
+function buildParams(cardId: number, campaign: string, dateStart: string, dateEnd: string): object[] {
+  const params: object[] = [];
+  if (campaign) params.push({ id: CAMPAIGN_TAG_ID[cardId], type: "string/=", value: campaign, target: ["variable", ["template-tag", "Abmi_Campaign"]] });
+  if (dateStart && dateEnd) params.push({ id: "date", type: "date/range", value: `${dateStart}~${dateEnd}`, target: ["dimension", ["template-tag", "Last_Updated"]] });
+  return params;
+}
+
+async function fetchSummaryForCampaign(campaign: string, dateStart: string, dateEnd: string) {
   const [r175, r176, r177, r178, r179, r180] = await Promise.all([
-    fetchCard(593, params),
-    fetchCard(594, params),
-    fetchCard(595, params),
-    fetchCard(596, params),
-    fetchCard(597, params),
-    fetchCard(725, params),
+    fetchCard(593, buildParams(593, campaign, dateStart, dateEnd)),
+    fetchCard(594, buildParams(594, campaign, dateStart, dateEnd)),
+    fetchCard(595, buildParams(595, campaign, dateStart, dateEnd)),
+    fetchCard(596, buildParams(596, campaign, dateStart, dateEnd)),
+    fetchCard(597, buildParams(597, campaign, dateStart, dateEnd)),
+    fetchCard(725, buildParams(725, campaign, dateStart, dateEnd)),
   ]);
 
   return {
@@ -69,9 +88,16 @@ async function getResult(campaigns: string[], dateStart: string, dateEnd: string
   if (cached && Date.now() - cached.ts < CACHE_TTL_MS) return cached.data;
   if (!inflight.has(key)) {
     const p = (async () => {
+      // Selecting every known campaign should mean "everything", same as no
+      // filter -- some rows have no campaign tag at all, so an explicit
+      // Abmi_Campaign IN (...) list covering every campaign still excludes
+      // them and silently undercounts vs. the true total.
+      const isEveryKnownCampaign = campaigns.length >= CAMPAIGNS.length
+        && CAMPAIGNS.every((c) => campaigns.includes(c));
+
       let result: SummaryResult;
-      if (campaigns.length <= 1) {
-        result = await fetchSummaryForCampaign(campaigns[0] ?? "", dateStart, dateEnd);
+      if (campaigns.length <= 1 || isEveryKnownCampaign) {
+        result = await fetchSummaryForCampaign(isEveryKnownCampaign ? "" : (campaigns[0] ?? ""), dateStart, dateEnd);
       } else {
         const perCampaign = await Promise.all(campaigns.map((c) => fetchSummaryForCampaign(c, dateStart, dateEnd)));
         result = {

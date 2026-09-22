@@ -85,7 +85,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
               className="text-xs bg-transparent border-none outline-none cursor-pointer"
               style={{ width: dateStart ? 110 : 70, color: dateStart ? "#374151" : "transparent" }} />
             {!dateStart && (
-              <span className="absolute inset-0 flex items-center text-xs text-gray-700 pointer-events-none">Start</span>
+              <span className="absolute inset-0 flex items-center text-xs text-gray-400 pointer-events-none">Start</span>
             )}
           </span>
           <span className="text-gray-300 text-xs">–</span>
@@ -94,7 +94,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
               className="text-xs bg-transparent border-none outline-none cursor-pointer"
               style={{ width: dateEnd ? 110 : 70, color: dateEnd ? "#374151" : "transparent" }} />
             {!dateEnd && (
-              <span className="absolute inset-0 flex items-center text-xs text-gray-700 pointer-events-none">End</span>
+              <span className="absolute inset-0 flex items-center text-xs text-gray-400 pointer-events-none">End</span>
             )}
           </span>
           {(dateStart || dateEnd) && (

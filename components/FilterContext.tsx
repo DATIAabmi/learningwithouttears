@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
+import { CAMPAIGNS } from "@/lib/campaigns";
 
 interface FilterState {
   dateStart: string;
@@ -34,7 +35,7 @@ const FilterContext = createContext<FilterState>({
 export function FilterProvider({ children }: { children: ReactNode }) {
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
-  const [campaign, setCampaign] = useState<string[]>([]);
+  const [campaign, setCampaign] = useState<string[]>([...CAMPAIGNS]);
   const [district, setDistrict] = useState<string[]>([]);
   const [resetSignal, setResetSignal] = useState(0);
 
@@ -42,7 +43,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     dateStart && dateEnd ? `${dateStart}~${dateEnd}` : undefined;
 
   function resetAll() {
-    setCampaign([]);
+    setCampaign([...CAMPAIGNS]);
     setDateStart("");
     setDateEnd("");
     setDistrict([]);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cachedJson } from "@/lib/apiCache";
+import { CAMPAIGNS } from "@/lib/campaigns";
 
 const METABASE_URL = process.env.NEXT_PUBLIC_METABASE_URL!;
 const API_KEY = process.env.METABASE_ADMIN_API_KEY!;
@@ -9,11 +10,24 @@ type FunnelResult = { impressions: unknown; engagements: unknown; ctr: unknown; 
 const memCache = new Map<string, { data: FunnelResult; ts: number }>();
 const inflight = new Map<string, Promise<FunnelResult>>();
 
-function buildParams(campaign: string, dateStart: string, dateEnd: string): object[] {
+// Each card's Abmi_Campaign tag has its own distinct UUID (verified against
+// Metabase) -- the generic "campaign" id this route used before silently
+// no-ops instead of erroring, so selecting 2 campaigns summed two full
+// unfiltered totals and doubled every number (same bug fixed previously in
+// content-data/route.ts and leads-summary/route.ts).
+const CAMPAIGN_TAG_ID: Record<number, string> = {
+  633: "60bfda83-705c-4cdc-b70b-771c11bb397d",
+  634: "c391d6aa-b25e-41c9-8b18-0335c6986059",
+  635: "60bfda83-705c-4cdc-b70b-771c11bb397d",
+  631: "468a70b4-dd5c-4818-bbab-98fb34226e7f",
+  632: "48b3cd67-eeed-4758-b9ae-13b099bd1cf1",
+};
+
+function buildParams(cardId: number, campaign: string, dateStart: string, dateEnd: string): object[] {
   const params: object[] = [];
   if (campaign) {
     params.push({
-      id: "campaign",
+      id: CAMPAIGN_TAG_ID[cardId],
       type: "string/=",
       value: campaign,
       target: ["variable", ["template-tag", "Abmi_Campaign"]],
@@ -34,11 +48,11 @@ function buildParams(campaign: string, dateStart: string, dateEnd: string): obje
 // date nested inside the `engagement` array (via UNNEST), not a row-level
 // column — Metabase's auto-generated field-filter SQL can't target that, so
 // these two cards take plain date variables instead of the Date dimension.
-function buildLeadsParams(campaign: string, dateStart: string, dateEnd: string): object[] {
+function buildLeadsParams(cardId: number, campaign: string, dateStart: string, dateEnd: string): object[] {
   const params: object[] = [];
   if (campaign) {
     params.push({
-      id: "campaign",
+      id: CAMPAIGN_TAG_ID[cardId],
       type: "string/=",
       value: campaign,
       target: ["variable", ["template-tag", "Abmi_Campaign"]],
@@ -98,15 +112,13 @@ function avgPct(values: (string | number | null)[]): string | null {
 }
 
 async function fetchFunnelForCampaign(campaign: string, dateStart: string, dateEnd: string) {
-  const params = buildParams(campaign, dateStart, dateEnd);
-  const engagementParams = buildLeadsParams(campaign, dateStart, dateEnd);
   const [impressions, engagements, ctr, engagedUsers, leads] =
     await Promise.all([
-      fetchScalar(633, params),
-      fetchScalar(634, params),
-      fetchScalar(635, params),
-      fetchScalar(631, engagementParams),
-      fetchScalar(632, engagementParams),
+      fetchScalar(633, buildParams(633, campaign, dateStart, dateEnd)),
+      fetchScalar(634, buildParams(634, campaign, dateStart, dateEnd)),
+      fetchScalar(635, buildParams(635, campaign, dateStart, dateEnd)),
+      fetchScalar(631, buildLeadsParams(631, campaign, dateStart, dateEnd)),
+      fetchScalar(632, buildLeadsParams(632, campaign, dateStart, dateEnd)),
     ]);
   return { impressions, engagements, ctr, engagedUsers, leads };
 }
@@ -117,9 +129,16 @@ async function getResult(campaigns: string[], dateStart: string, dateEnd: string
   if (cached && Date.now() - cached.ts < CACHE_TTL_MS) return cached.data;
   if (!inflight.has(key)) {
     const p = (async () => {
+      // Selecting every known campaign should mean "everything", same as no
+      // filter -- some rows have no campaign tag at all, so an explicit
+      // Abmi_Campaign IN (...) list covering every campaign still excludes
+      // them and silently undercounts vs. the true total.
+      const isEveryKnownCampaign = campaigns.length >= CAMPAIGNS.length
+        && CAMPAIGNS.every((c) => campaigns.includes(c));
+
       let result: FunnelResult;
-      if (campaigns.length <= 1) {
-        result = await fetchFunnelForCampaign(campaigns[0] ?? "", dateStart, dateEnd);
+      if (campaigns.length <= 1 || isEveryKnownCampaign) {
+        result = await fetchFunnelForCampaign(isEveryKnownCampaign ? "" : (campaigns[0] ?? ""), dateStart, dateEnd);
       } else {
         const perCampaign = await Promise.all(campaigns.map((c) => fetchFunnelForCampaign(c, dateStart, dateEnd)));
         result = {

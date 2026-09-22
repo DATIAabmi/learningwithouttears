@@ -122,18 +122,6 @@ export default function EcosystemFunnel({ onDataLoaded }: { onDataLoaded?: (data
       value: fmt(data.engagements),
     },
     {
-      label: "Click-Through Rate (CTR)",
-      shortLabel: "CTR",
-      description: "Percentage of impressions that generated a click",
-      value: fmt(data.ctr),
-    },
-    {
-      label: "Unique Engaged Users (UEU)",
-      shortLabel: "UEU",
-      description: "Unique individuals who engaged",
-      value: fmt(data.engagedUsers),
-    },
-    {
       label: "Leads",
       description: "Content downloads by target personas",
       goal: `Goal: ${goals.leads.toLocaleString()} Downloads`,
