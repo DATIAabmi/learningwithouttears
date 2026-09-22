@@ -356,8 +356,8 @@ function EngagedUsersContent() {
         {/* Filter + sort row */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <MultiSelectDropdown label="Domain" value={domain}   onChange={setDomain}   search={fetchFieldOptions("domain")} />
             <MultiSelectDropdown label="District"         value={district} onChange={setDistrict} search={fetchFieldOptions("district")} />
+            <MultiSelectDropdown label="Domain" value={domain}   onChange={setDomain}   search={fetchFieldOptions("domain")} />
             <MultiSelectDropdown label="State"            value={state}    onChange={setState}    search={fetchFieldOptions("state")} />
             <button
               type="button"
