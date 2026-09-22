@@ -75,7 +75,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
         />
         <div className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 rounded-lg bg-white">
           <CalendarSearch size={14} className="text-orange-400 shrink-0" />
-          <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider shrink-0">Date Range:</span>
+          <span className="text-gray-700 text-xs font-bold uppercase shrink-0">Date Range:</span>
           {/* Native date inputs always render their own "mm/dd/yyyy"-style
               skeleton when empty (placeholder is ignored) — text is made
               transparent when there's no value so a shorter "Start"/"End"
@@ -88,7 +88,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
               <span className="absolute inset-0 flex items-center text-xs text-gray-400 pointer-events-none">Start</span>
             )}
           </span>
-          <span className="text-gray-300 text-xs">–</span>
+          <span className="text-gray-400 text-xs">–</span>
           <span className="relative inline-block">
             <input type="date" value={dateEnd} onChange={(e) => setDateEnd(e.target.value)}
               className="text-xs bg-transparent border-none outline-none cursor-pointer"
