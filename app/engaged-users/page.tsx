@@ -235,7 +235,7 @@ function DataTable({
       <table className="text-xs border-collapse" style={{ width: 1200, minWidth: 1200 }}>
         <thead>
           <tr className="border-b border-gray-200">
-            <th className="sticky z-10 bg-white px-2 py-2 w-8 text-[13px] font-bold text-gray-900 border-b border-gray-200" style={{ textAlign: "center", top: headerTop }}>#</th>
+            <th className="sticky z-10 bg-white px-4 py-3 w-8 text-[13px] font-bold text-gray-900 border-b border-gray-200" style={{ textAlign: "center", top: headerTop }}>#</th>
             {cols.map((col, j) => {
               const active = sort.col === j;
               const left = isLeftCol(j);
@@ -243,7 +243,7 @@ function DataTable({
               return (
                 <th key={j}
                   onClick={() => onSort({ col: j, dir: active && sort.dir === "desc" ? "asc" : "desc" })}
-                  className="sticky z-10 bg-white px-2 py-2 font-bold text-gray-900 cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200"
+                  className="sticky z-10 bg-white px-4 py-3 font-bold text-gray-900 cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200"
                   style={{ textAlign: left ? "left" : "center", top: headerTop, ...(col.display_name === "Engagements" ? { minWidth: 100 } : {}) }}>
                   <span className={`inline-flex flex-wrap items-center gap-0.5 ${left ? "justify-start" : "justify-center"}`}>
                     <span style={col.display_name === "Engagements" ? { whiteSpace: "nowrap" } : undefined}>{label}</span>
@@ -259,12 +259,12 @@ function DataTable({
             const trend = trendColor(row);
             return (
               <tr key={i} className="border-b border-gray-100" style={{ backgroundColor: trend?.bg, color: trend?.text }}>
-                <td className="px-2 py-1 text-gray-400 text-[13px] font-medium" style={{ textAlign: "center" }}>{i + 1}</td>
+                <td className="px-4 py-3 text-gray-400 text-[13px] font-medium" style={{ textAlign: "center" }}>{i + 1}</td>
                 {row.map((cell, j) => {
                   const display = cell === null || cell === undefined ? "" : String(cell);
                   const left = isLeftCol(j);
                   return (
-                    <td key={j} className={`px-2 py-1 ${trend ? "" : "text-gray-800"} ${left ? "text-left" : "text-center tabular-nums"}`}>
+                    <td key={j} className={`px-4 py-3 ${trend ? "" : "text-gray-800"} ${left ? "text-left" : "text-center tabular-nums"}`}>
                       {j === 0 ? (
                         <button onClick={() => onDistrictClick(display)}
                           className="block w-full text-left hover:underline font-medium"
