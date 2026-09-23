@@ -319,7 +319,7 @@ export default function AIOpportunityFeed() {
                       </div>
 
                       {/* Source */}
-                      <div className="text-xs text-gray-600 leading-snug pt-0.5 truncate">
+                      <div className="text-xs text-gray-600 leading-snug pt-0.5 break-words">
                         {(row["Source"] as string) || "—"}
                       </div>
 
