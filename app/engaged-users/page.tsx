@@ -243,7 +243,7 @@ function DataTable({
       <table className="text-xs border-collapse" style={{ width: 1354, minWidth: 1354, tableLayout: "fixed" }}>
         <thead>
           <tr className="border-b border-gray-200">
-            <th className="sticky z-10 bg-white px-3 py-3 font-semibold text-gray-700 border-b border-gray-200" style={{ textAlign: "center", top: headerTop, width: 32 }}>#</th>
+            <th className="sticky z-10 bg-white px-3 py-3 text-[11px] font-semibold text-gray-700 border-b border-gray-200" style={{ textAlign: "center", top: headerTop, width: 32 }}>#</th>
             {cols.map((col, j) => {
               const active = sort.col === j;
               const left = isLeftCol(j);
@@ -251,7 +251,7 @@ function DataTable({
               return (
                 <th key={j}
                   onClick={() => onSort({ col: j, dir: active && sort.dir === "desc" ? "asc" : "desc" })}
-                  className="sticky z-10 bg-white px-3 py-3 font-semibold text-gray-700 cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200"
+                  className="sticky z-10 bg-white px-3 py-3 text-[11px] font-semibold text-gray-700 cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200"
                   style={{ textAlign: left ? "left" : "center", top: headerTop, width: COL_WIDTHS[j] }}>
                   <span className={`inline-flex items-center gap-0.5 ${left ? "justify-start" : "justify-center"}`}>
                     <span>{label}</span>
