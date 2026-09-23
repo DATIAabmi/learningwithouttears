@@ -78,7 +78,7 @@ const SORT_COLUMNS = [
   { label: "Engagements",   index: 6 },
   { label: "Engaged Users", index: 7 },
   { label: "Leads",         index: 8 },
-  { label: "Downloads",     index: 9 },
+  { label: "Total Downloads", index: 9 },
   { label: "Intent Score",  index: 10 },
   { label: "Score Trend",   index: 11 },
 ];
