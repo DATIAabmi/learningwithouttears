@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ExternalLink, Loader2, Download, Search, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown } from "lucide-react";
+import { ExternalLink, Loader2, Download, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
@@ -110,14 +110,18 @@ export default function AIOpportunityFeed() {
   const [sort, setSort]       = useState<SortState>({ col: "Date", dir: "desc" });
   const [filterCategory, setFilterCategory] = useState<string[]>([]);
   const [filterSource,   setFilterSource]   = useState<string[]>([]);
-  const [searchText,     setSearchText]     = useState("");
+  const [filterDistrict, setFilterDistrict] = useState<string[]>([]);
+  const [filterDomain,   setFilterDomain]   = useState<string[]>([]);
+  const [filterState,    setFilterState]    = useState<string[]>([]);
 
   // Clear this page's local filters when the global "Reset Filters" is clicked.
   useEffect(() => {
     if (resetSignal === 0) return;
     setFilterCategory([]);
     setFilterSource([]);
-    setSearchText("");
+    setFilterDistrict([]);
+    setFilterDomain([]);
+    setFilterState([]);
   }, [resetSignal]);
 
   const titleBarRef = useRef<HTMLDivElement>(null);
@@ -148,18 +152,22 @@ export default function AIOpportunityFeed() {
   const categoryOptions = [...new Set(rows.map((r) => String(r["Category"] ?? "")).filter(Boolean))].sort();
   const sourceOptions   = [...new Set(rows.map((r) => String(r["Source"]   ?? "")).filter(Boolean))].sort();
 
-  const q = searchText.trim().toLowerCase();
+  const districtOf = (r: Signal) => String(r["Organization"] ?? "");
+  const domainOf   = (r: Signal) => String((r["Domain"] as string) || extractDomain(r["Source Link"] as string) || "");
+  const stateOf    = (r: Signal) => String(r["State"] ?? "");
+
+  const searchOptions = (get: (r: Signal) => string) => (query: string): Promise<string[]> => {
+    const ql = query.trim().toLowerCase();
+    const opts = [...new Set(rows.map(get).filter(Boolean))].sort();
+    return Promise.resolve((ql ? opts.filter((o) => o.toLowerCase().includes(ql)) : opts).slice(0, 200));
+  };
+
   const filtered = rows.filter((r) => {
     if (filterCategory.length && !filterCategory.includes((r["Category"] as string) ?? "")) return false;
     if (filterSource.length   && !filterSource.includes((r["Source"] as string) ?? ""))     return false;
-    if (q) {
-      const haystack = [
-        r["Keywords"], r["Organization"], r["State"], r["Campaign #"],
-        r["Source"], r["Category"],
-        extractDomain(r["Source Link"] as string),
-      ].map((v) => String(v ?? "").toLowerCase()).join(" ");
-      if (!haystack.includes(q)) return false;
-    }
+    if (filterDistrict.length && !filterDistrict.includes(districtOf(r))) return false;
+    if (filterDomain.length   && !filterDomain.includes(domainOf(r)))     return false;
+    if (filterState.length    && !filterState.includes(stateOf(r)))       return false;
     return true;
   });
 
@@ -189,19 +197,9 @@ export default function AIOpportunityFeed() {
         <DashboardHeader />
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 rounded-lg bg-white">
-              <Search size={13} className="text-gray-400 shrink-0" />
-              <input
-                type="text"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Search district, state…"
-                className="text-xs text-gray-700 bg-transparent border-none outline-none w-44 placeholder-gray-400"
-              />
-              {searchText && (
-                <button onClick={() => setSearchText("")} className="text-gray-300 hover:text-gray-500 ml-0.5 text-xs leading-none">✕</button>
-              )}
-            </div>
+            <MultiSelectDropdown label="District" value={filterDistrict} onChange={setFilterDistrict} search={searchOptions(districtOf)} />
+            <MultiSelectDropdown label="Domain"   value={filterDomain}   onChange={setFilterDomain}   search={searchOptions(domainOf)} />
+            <MultiSelectDropdown label="State"    value={filterState}    onChange={setFilterState}    search={searchOptions(stateOf)} minWidth={110} />
             <MultiSelectDropdown label="Category" value={filterCategory} onChange={setFilterCategory} options={categoryOptions} />
             <MultiSelectDropdown label="Source"   value={filterSource}   onChange={setFilterSource}   options={sourceOptions} />
           </div>
