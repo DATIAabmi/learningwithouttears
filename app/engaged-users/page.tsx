@@ -74,6 +74,7 @@ const SORT_COLUMNS = [
   { label: "Domain",        index: 1 },
   { label: "State",         index: 2 },
   { label: "Campaign",      index: 3 },
+  { label: "Intel",         index: 4 },
   { label: "Topic",         index: 5 },
   { label: "Engagements",   index: 6 },
   { label: "Engaged Users", index: 7 },
@@ -364,11 +365,11 @@ function EngagedUsersContent() {
         <DashboardHeader />
 
         {/* Filter + sort row */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+          <div className="flex items-center gap-2 flex-wrap">
             <MultiSelectDropdown label="District"         value={district} onChange={setDistrict} search={fetchFieldOptions("district")} />
             <MultiSelectDropdown label="Domain" value={domain}   onChange={setDomain}   search={fetchFieldOptions("domain")} />
-            <MultiSelectDropdown label="State"            value={state}    onChange={setState}    search={fetchFieldOptions("state")} />
+            <MultiSelectDropdown label="State"            value={state}    onChange={setState}    search={fetchFieldOptions("state")} minWidth={110} />
             <button
               type="button"
               onClick={() => setShowDefs(true)}
