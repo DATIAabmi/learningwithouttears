@@ -103,7 +103,7 @@ function SortDropdown({ sort, onSort }: { sort: SortState; onSort: (s: SortState
         className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:border-blue-400 transition-colors">
         <ArrowUpDown size={13} className="text-gray-400" />
         <span className="text-gray-400 text-[13px] font-bold uppercase tracking-wider">Sort by:</span>
-        <span className="text-blue-600 font-semibold text-xs">{current?.label ?? "Engagements"}</span>
+        <span className="text-blue-600 font-semibold text-[13px]">{current?.label ?? "Engagements"}</span>
         <span className="text-gray-400 text-xs">{sort.dir === "asc" ? "↑" : "↓"}</span>
         <ChevronDown size={13} className="text-gray-400 shrink-0" />
       </button>
