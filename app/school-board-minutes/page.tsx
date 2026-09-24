@@ -49,10 +49,10 @@ function SortDropdown({ sort, onSort }: { sort: SortState; onSort: (s: SortState
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm hover:border-blue-400 transition-colors">
+        className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:border-blue-400 transition-colors">
         <ArrowUpDown size={13} className="text-gray-400" />
-        <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Sort by:</span>
-        <span className="text-blue-600 font-medium">{current?.label ?? "SBM Date"}</span>
+        <span className="text-gray-400 text-[13px] font-bold uppercase tracking-wider">Sort by:</span>
+        <span className="text-blue-600 font-semibold text-xs">{current?.label ?? "SBM Date"}</span>
         <span className="text-gray-400 text-xs">{sort.dir === "asc" ? "↑" : "↓"}</span>
         <ChevronDown size={13} className="text-gray-400 shrink-0" />
       </button>
