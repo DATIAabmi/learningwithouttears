@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo } from "react";
-import { ChevronDown, Loader2, ArrowUp, ArrowDown, ArrowUpDown, Download } from "lucide-react";
+import { createPortal } from "react-dom";
+import { ChevronDown, Loader2, ArrowUp, ArrowDown, ArrowUpDown, Download, Info, X } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
@@ -19,6 +20,50 @@ function fetchFieldOptions(field: "district" | "state" | "job_function") {
 }
 
 
+
+// ─── Dashboard Guide modal ────────────────────────────────────────────────────
+
+const DEFINITIONS = [
+  { term: "Interactive", def: "All reporting elements on the page are interactive." },
+  { term: "Filtering", def: "Filter the table using the dropdowns in the top left, or by clicking any chart bar to cross-filter." },
+  { term: "Reset", def: "To reset filters, right-click on a filter table/chart and select Reset Action, or click Reset the Page at the top of the dashboard." },
+  { term: "Sorting", def: "The table can be sorted by clicking on any column header." },
+];
+
+function DefinitionsModal({ onClose }: { onClose: () => void }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}
+      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)" }} onMouseDown={onClose} />
+      <div
+        style={{ position: "relative", background: "#fff", borderRadius: 16, boxShadow: "0 20px 60px rgba(0,0,0,0.18)", border: "1px solid #f0f0f0", padding: 24, maxWidth: 440, width: "calc(100% - 32px)" }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <span style={{ fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Dashboard Guide</span>
+          <button type="button" onClick={onClose} style={{ color: "#9ca3af", cursor: "pointer", background: "none", border: "none", padding: 0 }}>
+            <X size={16} />
+          </button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {DEFINITIONS.map(({ term, def }) => (
+            <div key={term} style={{ display: "flex", gap: 12 }}>
+              <span style={{ fontWeight: 700, fontSize: 12, color: "#111", flexShrink: 0, minWidth: 80, paddingTop: 1 }}>{term}</span>
+              <span style={{ fontSize: 12, color: "#4b5563", lineHeight: 1.6 }}>{def}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
 
 // ─── Sort dropdown ────────────────────────────────────────────────────────────
 
@@ -51,11 +96,11 @@ function SortDropdown({ sort, onSort }: { sort: SortState; onSort: (s: SortState
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm hover:border-blue-400 transition-colors"
+        className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:border-blue-400 transition-colors"
       >
         <ArrowUpDown size={13} className="text-gray-400" />
-        <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Sort by:</span>
-        <span className="text-blue-600 font-medium">{current?.label ?? "Engagements"}</span>
+        <span className="text-gray-400 text-[13px] font-bold uppercase tracking-wider">Sort by:</span>
+        <span className="text-blue-600 font-semibold text-xs">{current?.label ?? "Engagements"}</span>
         <span className="text-gray-400 text-xs">{sort.dir === "asc" ? "↑" : "↓"}</span>
         <ChevronDown size={13} className="text-gray-400 shrink-0" />
       </button>
@@ -89,7 +134,7 @@ type Row = (string | number | null)[];
 const NUMBER_TYPES = new Set(["type/Integer","type/BigInteger","type/Float","type/Decimal","type/Number"]);
 // Raw column indices (card 168): 0=District 1=Domain 2=State 3=Job Function 4=Campaign 5=Engagements 6=Leads
 // Visual column order shown to user
-const COL_ORDER = [0, 1, 2, 4, 3, 6, 5];
+const COL_ORDER = [0, 1, 2, 4, 3, 5, 6];
 // Columns that are always left-aligned, identified by raw card index (avoids display_name mismatch)
 const LEFT_ALIGN_INDICES = new Set([0, 1, 3]); // District, Domain, Job Function
 const COL_LABELS: Record<number, string> = { 1: "Domain", 3: "Job Function" };
@@ -114,16 +159,16 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
 
   return (
     <div className="bg-white">
-      <table className="text-xs border-collapse table-fixed" style={{ width: 1050, minWidth: 1050 }}>
+      <table className="text-xs border-collapse table-fixed" style={{ width: 936, minWidth: 936 }}>
         <colgroup>
           <col style={{ width: 36 }} />   {/* # */}
-          <col style={{ width: 160 }} />  {/* District */}
-          <col style={{ width: 120 }} />  {/* Domain */}
+          <col style={{ width: 200 }} />  {/* District */}
+          <col style={{ width: 170 }} />  {/* Domain */}
           <col style={{ width: 50 }} />   {/* State */}
           <col style={{ width: 80 }} />   {/* Campaign */}
-          <col style={{ width: 170 }} />  {/* Job Function */}
-          <col style={{ width: 72 }} />   {/* Leads */}
+          <col style={{ width: 240 }} />  {/* Job Function */}
           <col style={{ width: 88 }} />   {/* Engagements */}
+          <col style={{ width: 72 }} />   {/* Leads */}
         </colgroup>
         <thead>
           <tr className="border-b border-gray-200">
@@ -179,6 +224,7 @@ function PersonaInsightsContent() {
   const { campaign, dateStart, dateEnd, resetSignal } = useFilter();
 
   const [filterDistrict, setFilterDistrict] = useState<string[]>([]);
+  const [filterDomain, setFilterDomain] = useState<string[]>([]);
   const [filterState, setFilterState] = useState<string[]>([]);
   const [filterJobFunction, setFilterJobFunction] = useState<string[]>([]);
 
@@ -189,6 +235,7 @@ function PersonaInsightsContent() {
   const [sort, setSort] = useState<SortState>({ col: 5, dir: "desc" });
 
   const [allRows, setAllRows] = useState<Row[]>([]);
+  const [showDefs, setShowDefs] = useState(false);
 
   const titleBarRef = useRef<HTMLDivElement>(null);
   const [titleBarHeight, setTitleBarHeight] = useState(0);
@@ -232,21 +279,32 @@ function PersonaInsightsContent() {
   // Campaign column is at index 4 and stores short codes ("C6").
   useEffect(() => {
     const prefixes = campaign.map((c) => c.split(":")[0].trim());
-    setRows(prefixes.length === 0 ? allRows : allRows.filter((row) => prefixes.includes(String(row[4] ?? ""))));
-  }, [campaign, allRows]);
+    let filtered = prefixes.length === 0 ? allRows : allRows.filter((row) => prefixes.includes(String(row[4] ?? "")));
+    if (filterDomain.length > 0) {
+      filtered = filtered.filter((row) => filterDomain.includes(String(row[1] ?? "")));
+    }
+    setRows(filtered);
+  }, [campaign, allRows, filterDomain]);
+
+  const searchDomains = (query: string): Promise<string[]> => {
+    const ql = query.trim().toLowerCase();
+    const opts = [...new Set(allRows.map((r) => String(r[1] ?? "")).filter(Boolean))].sort();
+    return Promise.resolve((ql ? opts.filter((o) => o.toLowerCase().includes(ql)) : opts).slice(0, 200));
+  };
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
   useEffect(() => {
     if (resetSignal === 0) return;
     setFilterDistrict([]);
+    setFilterDomain([]);
     setFilterState([]);
     setFilterJobFunction([]);
   }, [resetSignal]);
 
   // Export columns/rows follow the on-screen column order (COL_ORDER) and use
   // the same friendly headers shown in the table:
-  // District, Domain, State, Campaign, Job Function, Leads, Engagements.
+  // District, Domain, State, Campaign, Job Function, Engagements, Leads.
   const exportCols = useMemo(
     () =>
       cols.length
@@ -272,18 +330,29 @@ function PersonaInsightsContent() {
         <DashboardHeader />
 
         {/* Filter + sort row */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+          <div className="flex items-center gap-2 flex-wrap">
             <MultiSelectDropdown label="District"     value={filterDistrict}    onChange={setFilterDistrict}    search={fetchFieldOptions("district")} />
+            <MultiSelectDropdown label="Domain"       value={filterDomain}      onChange={setFilterDomain}      search={searchDomains} />
+            <MultiSelectDropdown label="State"        value={filterState}       onChange={setFilterState}       search={fetchFieldOptions("state")} minWidth={110} />
             <MultiSelectDropdown label="Job Function" value={filterJobFunction} onChange={setFilterJobFunction} search={fetchFieldOptions("job_function")} />
-            <MultiSelectDropdown label="State"        value={filterState}       onChange={setFilterState}       search={fetchFieldOptions("state")} />
+            <button
+              type="button"
+              onClick={() => setShowDefs(true)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-400 rounded-lg bg-white transition-colors shrink-0"
+            >
+              <Info size={13} />
+              Dashboard Guide
+            </button>
           </div>
           <SortDropdown sort={sort} onSort={setSort} />
         </div>
+
+        {showDefs && <DefinitionsModal onClose={() => setShowDefs(false)} />}
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }}>
-        <div style={{ minWidth: 1050, width: "100%" }}>
+        <div style={{ minWidth: 936, width: "100%" }}>
         {/* Section title */}
         <div ref={titleBarRef} className="sticky top-0 z-20 bg-gray-900 text-white px-5 py-3 rounded-t-xl flex items-center justify-between">
           <div className="flex items-center gap-3">
