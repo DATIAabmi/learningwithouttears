@@ -89,7 +89,7 @@ function GeographyTable({
     return filteredRows.reduce((sum, row) => sum + (Number(row[j]) || 0), 0);
   });
 
-  const displayName = (name: string) => (name === "Leads" ? "Unique Leads" : name);
+  const displayName = (name: string) => name;
 
   useRegisterCsvExport(() => exportToCsv("engagements-by-geography", cols, filteredRows));
 
