@@ -277,7 +277,7 @@ export default function AIOpportunityFeed() {
                       </div>
 
                       {/* Domain */}
-                      <div className="text-xs text-gray-600 leading-snug pt-0.5 truncate">
+                      <div className="text-xs text-gray-600 leading-snug pt-0.5 break-all">
                         {domain || "—"}
                       </div>
 
@@ -302,7 +302,7 @@ export default function AIOpportunityFeed() {
                           <a href={link} target="_blank" rel="noopener noreferrer"
                             className="inline-flex items-center gap-0.5 text-blue-600 hover:text-blue-800 transition-colors"
                             title={link}>
-                            <span className="truncate max-w-[72px] inline-block">{domain}</span>
+                            <span className="max-w-[72px] inline-block break-all">{domain}</span>
                             <ExternalLink size={10} className="shrink-0" />
                           </a>
                         ) : "—"}
