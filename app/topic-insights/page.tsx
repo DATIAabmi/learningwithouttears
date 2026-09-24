@@ -290,20 +290,27 @@ function TopicInsightsContent() {
 
   const [filterDistrict, setFilterDistrict] = useState<string[]>([]);
   const [filterDomain, setFilterDomain] = useState<string[]>([]);
+  const [filterCampaign, setFilterCampaign] = useState<string[]>([]);
   const [filterState, setFilterState] = useState<string[]>([]);
   const [filterTopic, setFilterTopic] = useState<string[]>([]);
 
   const [cols, setCols] = useState<Col[]>([]);
   const [allRows, setAllRows] = useState<Row[]>([]);
   const rows = useMemo(
-    () => (filterDomain.length ? allRows.filter((r) => filterDomain.includes(String(r[1] ?? ""))) : allRows),
-    [allRows, filterDomain],
+    () => allRows.filter((r) => {
+      if (filterDomain.length && !filterDomain.includes(String(r[1] ?? ""))) return false;
+      if (filterCampaign.length && !filterCampaign.includes(String(r[2] ?? ""))) return false;
+      return true;
+    }),
+    [allRows, filterDomain, filterCampaign],
   );
-  const searchDomains = (query: string): Promise<string[]> => {
+  const makeSearch = (colIdx: number) => (query: string): Promise<string[]> => {
     const ql = query.trim().toLowerCase();
-    const opts = [...new Set(allRows.map((r) => String(r[1] ?? "")).filter(Boolean))].sort();
+    const opts = [...new Set(allRows.map((r) => String(r[colIdx] ?? "")).filter(Boolean))].sort();
     return Promise.resolve((ql ? opts.filter((o) => o.toLowerCase().includes(ql)) : opts).slice(0, 200));
   };
+  const searchDomains = makeSearch(1);
+  const searchCampaigns = makeSearch(2);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sort, setSort] = useState<SortState>({ col: 5, dir: "desc" });
@@ -350,6 +357,7 @@ function TopicInsightsContent() {
     if (resetSignal === 0) return;
     setFilterDistrict([]);
     setFilterDomain([]);
+    setFilterCampaign([]);
     setFilterState([]);
     setFilterTopic([]);
   }, [resetSignal]);
@@ -379,6 +387,7 @@ function TopicInsightsContent() {
             <MultiSelectDropdown label="District" value={filterDistrict} onChange={setFilterDistrict} search={fetchFieldOptions("district")} />
             <MultiSelectDropdown label="Domain"   value={filterDomain}   onChange={setFilterDomain}   search={searchDomains} />
             <MultiSelectDropdown label="State"    value={filterState}    onChange={setFilterState}    search={fetchFieldOptions("state")} />
+            <MultiSelectDropdown label="Campaign" value={filterCampaign} onChange={setFilterCampaign} search={searchCampaigns} />
             <MultiSelectDropdown label="Topic"    value={filterTopic}    onChange={setFilterTopic}    search={fetchFieldOptions("topic")} />
             <button
               type="button"
