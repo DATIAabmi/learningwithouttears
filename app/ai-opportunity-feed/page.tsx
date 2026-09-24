@@ -25,7 +25,7 @@ const COLS = [
   { key: "District",        width: 120, sort: true,  flex: false, center: false },
   { key: "Domain",          width: 120, sort: true,  flex: false, center: false },
   { key: "State",           width: 40,  sort: true,  flex: false, center: true  },
-  { key: "Campaign",        width: 65,  sort: true,  flex: false, center: true  },
+  { key: "Campaign",        width: 80,  sort: true,  flex: false, center: true  },
   { key: "Keywords",        width: 160, sort: true,  flex: false, center: false },
   { key: "Source Link",     width: 90,  sort: false, flex: false, center: false },
   { key: "Date",            width: 75,  sort: true,  flex: false, center: false },
