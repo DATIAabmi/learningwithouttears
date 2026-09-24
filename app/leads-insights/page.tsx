@@ -21,6 +21,7 @@ interface SortState { col: number; dir: SortDir }
 
 const SORT_COLUMNS = [
   { label: "District",        index: 0 },
+  { label: "Domain",          index: 1 },
   { label: "State",           index: 2 },
   { label: "Campaign",        index: 3 },
   { label: "Job Function",    index: 5 },
@@ -43,9 +44,9 @@ function SortDropdown({ sort, onSort }: { sort: SortState; onSort: (s: SortState
   return (
     <div ref={ref} className="relative shrink-0">
       <button onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm hover:border-blue-400 transition-colors">
+        className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:border-blue-400 transition-colors">
         <ArrowUpDown size={13} className="text-gray-400" />
-        <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Sort by:</span>
+        <span className="text-gray-400 text-[13px] font-bold uppercase tracking-wider">Sort by:</span>
         <span className="text-blue-600 font-medium">{current?.label ?? "Total Downloads"}</span>
         <span className="text-gray-400 text-xs">{sort.dir === "asc" ? "↑" : "↓"}</span>
         <ChevronDown size={13} className="text-gray-400 shrink-0" />
@@ -99,7 +100,16 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
 
   return (
     <div className="bg-white">
-      <table className="text-xs border-collapse" style={{ width: 900, minWidth: 900 }}>
+      <table className="text-xs border-collapse" style={{ width: 1010, minWidth: 1010, tableLayout: "fixed" }}>
+        <colgroup>
+          <col style={{ width: 40 }} />   {/* # */}
+          <col style={{ width: 240 }} />  {/* District */}
+          <col style={{ width: 200 }} />  {/* Domain */}
+          <col style={{ width: 60 }} />   {/* State */}
+          <col style={{ width: 90 }} />   {/* Campaign */}
+          <col style={{ width: 260 }} />  {/* Job Function */}
+          <col style={{ width: 120 }} />  {/* Total Downloads */}
+        </colgroup>
         <thead>
           <tr className="border-b border-gray-200">
             <th className="sticky z-10 bg-white px-2 py-2 w-10 text-center text-[11px] font-semibold border-b border-gray-200" style={{ color: "#374151", top: headerTop }}>#</th>
@@ -134,7 +144,7 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
                 const isCenter = isNum || FORCE_CENTER_COLS.has(colName);
                 return (
                   <td key={j} className={`px-4 py-1.5 text-gray-800 ${isNum ? "tabular-nums" : ""}`}
-                    style={{ textAlign: isCenter ? "center" : "left" }}>
+                    style={{ textAlign: isCenter ? "center" : "left", overflowWrap: "anywhere" }}>
                     {cell === null || cell === undefined ? "" : String(cell)}
                   </td>
                 );
@@ -150,11 +160,21 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
 function LeadsInsightsContent() {
   const { campaign, dateStart, dateEnd, resetSignal } = useFilter();
   const [filterDistrict, setFilterDistrict] = useState<string[]>([]);
+  const [filterDomain, setFilterDomain] = useState<string[]>([]);
   const [filterState, setFilterState] = useState<string[]>([]);
   const [filterJobFunction, setFilterJobFunction] = useState<string[]>([]);
   const [filterContentName, setFilterContentName] = useState<string[]>([]);
   const [cols, setCols] = useState<Col[]>([]);
-  const [rows, setRows] = useState<Row[]>([]);
+  const [allRows, setAllRows] = useState<Row[]>([]);
+  const rows = useMemo(
+    () => (filterDomain.length ? allRows.filter((r) => filterDomain.includes(String(r[1] ?? ""))) : allRows),
+    [allRows, filterDomain],
+  );
+  const searchDomains = (query: string): Promise<string[]> => {
+    const ql = query.trim().toLowerCase();
+    const opts = [...new Set(allRows.map((r) => String(r[1] ?? "")).filter(Boolean))].sort();
+    return Promise.resolve((ql ? opts.filter((o) => o.toLowerCase().includes(ql)) : opts).slice(0, 200));
+  };
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sort, setSort] = useState<SortState>({ col: 6, dir: "desc" });
@@ -193,7 +213,7 @@ function LeadsInsightsContent() {
       .then((d: { cols?: unknown[]; rows?: unknown[]; error?: string }) => {
         if (d.error) throw new Error(d.error);
         setCols((d.cols ?? []) as Col[]);
-        setRows((d.rows ?? []) as Row[]);
+        setAllRows((d.rows ?? []) as Row[]);
         setLoading(false);
       })
       .catch((err: Error) => { setError(err.message ?? "Failed to load"); setLoading(false); });
@@ -204,6 +224,7 @@ function LeadsInsightsContent() {
   useEffect(() => {
     if (resetSignal === 0) return;
     setFilterDistrict([]);
+    setFilterDomain([]);
     setFilterState([]);
     setFilterJobFunction([]);
     setFilterContentName([]);
@@ -229,11 +250,12 @@ function LeadsInsightsContent() {
         <DashboardHeader />
 
         {/* Filter + sort row */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+          <div className="flex items-center gap-2 flex-wrap">
             <MultiSelectDropdown label="District"     value={filterDistrict}    onChange={setFilterDistrict}    search={fetchFieldOptions("district")} />
+            <MultiSelectDropdown label="Domain"       value={filterDomain}      onChange={setFilterDomain}      search={searchDomains} />
+            <MultiSelectDropdown label="State"        value={filterState}       onChange={setFilterState}       search={fetchFieldOptions("state")} minWidth={110} />
             <MultiSelectDropdown label="Job Function" value={filterJobFunction} onChange={setFilterJobFunction} search={fetchFieldOptions("job_function")} />
-            <MultiSelectDropdown label="State"        value={filterState}       onChange={setFilterState}       search={fetchFieldOptions("state")} />
             <MultiSelectDropdown label="Content"      value={filterContentName} onChange={setFilterContentName} search={fetchFieldOptions("content_name")} />
           </div>
           <SortDropdown sort={sort} onSort={setSort} />
@@ -241,7 +263,7 @@ function LeadsInsightsContent() {
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }}>
-        <div style={{ minWidth: 900, width: "100%" }}>
+        <div style={{ minWidth: 1010, width: "100%" }}>
         <LeadsSummaryPanel />
         <div ref={titleBarRef} className="sticky top-0 z-20 bg-gray-900 text-white px-5 py-3 rounded-t-xl flex items-center justify-between">
           <div className="flex items-center gap-3">
