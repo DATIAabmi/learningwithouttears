@@ -145,10 +145,10 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
 
   return (
     <div className="bg-white">
-      <table className="text-xs border-collapse" style={{ width: 1010, minWidth: 1010, tableLayout: "fixed" }}>
+      <table className="text-xs border-collapse" style={{ width: 1090, minWidth: 1090, tableLayout: "fixed" }}>
         <colgroup>
           <col style={{ width: 40 }} />   {/* # */}
-          <col style={{ width: 240 }} />  {/* District */}
+          <col style={{ width: 320 }} />  {/* District */}
           <col style={{ width: 200 }} />  {/* Domain */}
           <col style={{ width: 60 }} />   {/* State */}
           <col style={{ width: 90 }} />   {/* Campaign */}
@@ -319,7 +319,7 @@ function LeadsInsightsContent() {
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }}>
-        <div style={{ minWidth: 1010, width: "100%" }}>
+        <div style={{ minWidth: 1090, width: "100%" }}>
         <LeadsSummaryPanel />
         <div ref={titleBarRef} className="sticky top-0 z-20 bg-gray-900 text-white px-5 py-3 rounded-t-xl flex items-center justify-between">
           <div className="flex items-center gap-3">
