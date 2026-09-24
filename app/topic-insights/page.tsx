@@ -194,7 +194,7 @@ function SortDropdown({ sort, onSort }: { sort: SortState; onSort: (s: SortState
 const TI_COLS = [
   { label: "#",           width: 32,  align: "center" as const, colIdx: -1 },
   { label: "District",    width: 220, align: "left"   as const, colIdx: 0  },
-  { label: "Domain",      width: 120, align: "left"   as const, colIdx: 1  },
+  { label: "Domain",      width: 200, align: "left"   as const, colIdx: 1  },
   { label: "State",       width: 52,  align: "center" as const, colIdx: 3  },
   { label: "Campaign",    width: 90,  align: "center" as const, colIdx: 2  },
   { label: "Topic",       width: 240, align: "left"   as const, colIdx: 4  },
@@ -227,7 +227,7 @@ function DataTable({ rows, sort }: { rows: Row[]; sort: SortState }) {
             const cell = row[j];
             const text = cell === null || cell === undefined ? "" : String(cell);
             return (
-              <span key={j} className="px-2 py-1.5 text-gray-800" style={{ textAlign: cd.align }}>
+              <span key={j} className="px-2 py-1.5 text-gray-800" style={{ textAlign: cd.align, overflowWrap: "anywhere" }}>
                 {text}
               </span>
             );
@@ -382,7 +382,7 @@ function TopicInsightsContent() {
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }}>
-        <div style={{ minWidth: 844, width: "100%" }}>
+        <div style={{ minWidth: 924, width: "100%" }}>
 
         {/* AVG Topic Score chart — driven by the same filtered rows as the table */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-4 overflow-hidden" style={{ height: 340 }}>
