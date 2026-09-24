@@ -22,7 +22,7 @@ function extractDomain(url: string | null | undefined): string {
 // # | District | Domain | State | Campaign | Keywords | Source Link | Date | Category | Source | Signal Analysis | Strength | Source Text
 const COLS = [
   { key: "#",               width: 30,  sort: false, flex: false, center: false },
-  { key: "District",        width: 120, sort: true,  flex: false, center: false },
+  { key: "District",        width: 170, sort: true,  flex: false, center: false },
   { key: "Domain",          width: 120, sort: true,  flex: false, center: false },
   { key: "State",           width: 40,  sort: true,  flex: false, center: true  },
   { key: "Campaign",        width: 80,  sort: true,  flex: false, center: true  },
