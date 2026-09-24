@@ -115,7 +115,7 @@ function DefinitionsModal({ onClose }: { onClose: () => void }) {
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <span style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Metric Descriptions</span>
+          <span style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Dashboard Guide</span>
           <button type="button" onClick={onClose} style={{ color: "#9ca3af", cursor: "pointer", background: "none", border: "none", padding: 0 }}>
             <X size={16} />
           </button>
@@ -141,7 +141,9 @@ interface SortState { col: number; dir: SortDir }
 
 const SORT_COLUMNS = [
   { label: "District", index: 0 },
+  { label: "Domain", index: 1 },
   { label: "State", index: 3 },
+  { label: "Campaign", index: 2 },
   { label: "Topic", index: 4 },
   { label: "Topic Score", index: 5 },
 ];
@@ -193,12 +195,12 @@ function SortDropdown({ sort, onSort }: { sort: SortState; onSort: (s: SortState
 // Raw: 0=District 1=Domain 2=Campaign 3=State 4=Topic 5=Topic Score
 const TI_COLS = [
   { label: "#",           width: 32,  align: "center" as const, colIdx: -1 },
-  { label: "District",    width: 220, align: "left"   as const, colIdx: 0  },
+  { label: "District",    width: 280, align: "left"   as const, colIdx: 0  },
   { label: "Domain",      width: 200, align: "left"   as const, colIdx: 1  },
   { label: "State",       width: 52,  align: "center" as const, colIdx: 3  },
   { label: "Campaign",    width: 90,  align: "center" as const, colIdx: 2  },
   { label: "Topic",       width: 240, align: "left"   as const, colIdx: 4  },
-  { label: "Topic Score", width: 90,  align: "center" as const, colIdx: 5  },
+  { label: "Topic Score", width: 110,  align: "center" as const, colIdx: 5  },
 ];
 const TI_GRID = TI_COLS.map((c) => `${c.width}px`).join(" ");
 
@@ -287,11 +289,21 @@ function TopicInsightsContent() {
   const { campaign, dateStart, dateEnd, resetSignal } = useFilter();
 
   const [filterDistrict, setFilterDistrict] = useState<string[]>([]);
+  const [filterDomain, setFilterDomain] = useState<string[]>([]);
   const [filterState, setFilterState] = useState<string[]>([]);
   const [filterTopic, setFilterTopic] = useState<string[]>([]);
 
   const [cols, setCols] = useState<Col[]>([]);
-  const [rows, setRows] = useState<Row[]>([]);
+  const [allRows, setAllRows] = useState<Row[]>([]);
+  const rows = useMemo(
+    () => (filterDomain.length ? allRows.filter((r) => filterDomain.includes(String(r[1] ?? ""))) : allRows),
+    [allRows, filterDomain],
+  );
+  const searchDomains = (query: string): Promise<string[]> => {
+    const ql = query.trim().toLowerCase();
+    const opts = [...new Set(allRows.map((r) => String(r[1] ?? "")).filter(Boolean))].sort();
+    return Promise.resolve((ql ? opts.filter((o) => o.toLowerCase().includes(ql)) : opts).slice(0, 200));
+  };
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sort, setSort] = useState<SortState>({ col: 5, dir: "desc" });
@@ -326,7 +338,7 @@ function TopicInsightsContent() {
       .then((d) => {
         if (d.error) throw new Error(d.error);
         setCols(d.cols);
-        setRows(d.rows);
+        setAllRows(d.rows);
         setLoading(false);
       })
       .catch((err) => { setError(err.message ?? "Failed to load"); setLoading(false); });
@@ -337,6 +349,7 @@ function TopicInsightsContent() {
   useEffect(() => {
     if (resetSignal === 0) return;
     setFilterDistrict([]);
+    setFilterDomain([]);
     setFilterState([]);
     setFilterTopic([]);
   }, [resetSignal]);
@@ -361,9 +374,10 @@ function TopicInsightsContent() {
         <DashboardHeader />
 
         {/* Filter + sort row */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+          <div className="flex items-center gap-2 flex-wrap">
             <MultiSelectDropdown label="District" value={filterDistrict} onChange={setFilterDistrict} search={fetchFieldOptions("district")} />
+            <MultiSelectDropdown label="Domain"   value={filterDomain}   onChange={setFilterDomain}   search={searchDomains} />
             <MultiSelectDropdown label="State"    value={filterState}    onChange={setFilterState}    search={fetchFieldOptions("state")} />
             <MultiSelectDropdown label="Topic"    value={filterTopic}    onChange={setFilterTopic}    search={fetchFieldOptions("topic")} />
             <button
@@ -372,7 +386,7 @@ function TopicInsightsContent() {
               className="flex items-center gap-1.5 px-3 py-2 text-xs text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-400 rounded-lg bg-white transition-colors shrink-0"
             >
               <Info size={13} />
-              Metric Descriptions
+              Dashboard Guide
             </button>
           </div>
           <SortDropdown sort={sort} onSort={setSort} />
@@ -382,7 +396,7 @@ function TopicInsightsContent() {
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }}>
-        <div style={{ minWidth: 924, width: "100%" }}>
+        <div style={{ minWidth: 1004, width: "100%" }}>
 
         {/* AVG Topic Score chart — driven by the same filtered rows as the table */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-4 overflow-hidden" style={{ height: 340 }}>
@@ -422,7 +436,7 @@ function TopicInsightsContent() {
                  style={{ top: titleBarHeight, display: "grid", gridTemplateColumns: TI_GRID }}>
               {TI_COLS.map((cd, i) => (
                 <span key={i}
-                  className={`px-2 py-2 inline-flex items-center gap-0.5 select-none ${cd.colIdx >= 0 ? "cursor-pointer hover:opacity-70" : ""} ${cd.align === "center" ? "justify-center" : "justify-start"}`}
+                  className={`px-2 py-2 inline-flex items-center gap-0.5 whitespace-nowrap select-none ${cd.colIdx >= 0 ? "cursor-pointer hover:opacity-70" : ""} ${cd.align === "center" ? "justify-center" : "justify-start"}`}
                   onClick={cd.colIdx >= 0 ? () => setSort({ col: cd.colIdx, dir: sort.col === cd.colIdx && sort.dir === "desc" ? "asc" : "desc" }) : undefined}>
                   {cd.label}
                   {cd.colIdx >= 0 && (sort.col === cd.colIdx
