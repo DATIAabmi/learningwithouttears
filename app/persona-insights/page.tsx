@@ -127,7 +127,7 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
         </colgroup>
         <thead>
           <tr className="border-b border-gray-200">
-            <th className="sticky z-10 bg-white px-2 py-2 text-center w-10 font-bold whitespace-nowrap border-b border-gray-200" style={{ color: "#111827", top: headerTop }}>#</th>
+            <th className="sticky z-10 bg-white px-2 py-2 text-center w-10 text-[11px] font-semibold whitespace-nowrap border-b border-gray-200" style={{ color: "#374151", top: headerTop }}>#</th>
             {COL_ORDER.map((j) => {
               const col = cols[j];
               if (!col) return null;
@@ -137,14 +137,14 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
               return (
                 <th key={j}
                   onClick={() => onSort({ col: j, dir: active && sort.dir === "desc" ? "asc" : "desc" })}
-                  className={`sticky z-10 bg-white px-2 py-2 font-bold whitespace-nowrap cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200 ${isLeft ? "text-left" : "text-center"}`}
-                  style={{ color: "#111827", top: headerTop }}
+                  className={`sticky z-10 bg-white px-2 py-2 text-[11px] font-semibold whitespace-nowrap cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200 ${isLeft ? "text-left" : "text-center"}`}
+                  style={{ color: "#374151", top: headerTop }}
                 >
-                  <span className={`inline-flex items-center gap-1 ${isLeft ? "justify-start" : "justify-center"}`}>
+                  <span className={`inline-flex items-center gap-0.5 ${isLeft ? "justify-start" : "justify-center"}`}>
                     {label}
                     {active
-                      ? sort.dir === "asc" ? <ArrowUp size={11} /> : <ArrowDown size={11} />
-                      : <ArrowUpDown size={11} className="opacity-30" />}
+                      ? sort.dir === "asc" ? <ArrowUp size={10} /> : <ArrowDown size={10} />
+                      : <ArrowUpDown size={10} className="opacity-30" />}
                   </span>
                 </th>
               );
