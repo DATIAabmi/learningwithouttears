@@ -4,77 +4,25 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useFilter } from "./FilterContext";
 import { channelColor } from "@/lib/channelColors";
+import DonutBreakdown from "@/components/DonutBreakdown";
 
 export type Row = [string, number, number];
 
 function DonutChart({ rows }: { rows: Row[] }) {
   const total = rows.reduce((s, r) => s + r[1], 0);
-  const R = 78;
-  const SW = 38;
-  const CX = 105;
-  const CY = 105;
-  const circumference = 2 * Math.PI * R;
-
-  let cumPct = 0;
+  const fmtNum = (n: number) => Math.round(n).toLocaleString();
   const segments = rows.map((row, i) => {
     const pct = total > 0 ? row[1] / total : 0;
-    const arcStart = cumPct * circumference;
-    cumPct += pct;
-    return { label: row[0], clicks: row[1], pct, arcStart, color: channelColor(row[0], i) };
+    return {
+      label: row[0],
+      pct,
+      color: channelColor(row[0], i),
+      valueText: `${(pct * 100).toFixed(1)}%`,
+      subText: `${fmtNum(row[1])} clicks`,
+    };
   });
 
-  const fmtNum = (n: number) => Math.round(n).toLocaleString();
-
-  return (
-    <div className="flex items-center gap-8 w-full">
-      {/* Donut */}
-      <div className="shrink-0">
-        <svg viewBox="0 0 210 210" width={210} height={210}>
-          {/* Track */}
-          <circle cx={CX} cy={CY} r={R} fill="none" stroke="#f3f4f6" strokeWidth={SW} />
-          {/* Rotate -90° so segments start at 12 o'clock; offset is negative cumulative arc to shift each segment CW */}
-          <g transform={`rotate(-90 ${CX} ${CY})`}>
-            {segments.map((seg, i) => (
-              <circle
-                key={i}
-                cx={CX} cy={CY} r={R}
-                fill="none"
-                stroke={seg.color}
-                strokeWidth={SW}
-                strokeLinecap="butt"
-                strokeDasharray={`${seg.pct * circumference + 0.5} ${circumference}`}
-                strokeDashoffset={-seg.arcStart}
-              />
-            ))}
-          </g>
-          {/* Center label */}
-          <text x={CX} y={CY - 8} textAnchor="middle" fontSize={12} fill="#6b7280" fontFamily="inherit">Total Engagements</text>
-          <text x={CX} y={CY + 12} textAnchor="middle" fontSize={18} fontWeight="700" fill="#111827" fontFamily="inherit">
-            {fmtNum(total)}
-          </text>
-        </svg>
-      </div>
-
-      {/* Legend */}
-      <div className="flex flex-col gap-3 flex-1 min-w-0">
-        {segments.map((seg, i) => (
-          <div key={i} className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-medium text-gray-800 truncate">{seg.label}</span>
-                <span className="text-sm tabular-nums text-gray-500 shrink-0">{fmtNum(seg.clicks)}</span>
-              </div>
-              <div className="mt-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: `${seg.pct * 100}%`, backgroundColor: seg.color }} />
-              </div>
-              <div className="text-xs text-gray-400 mt-0.5">{(seg.pct * 100).toFixed(1)}%</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  return <DonutBreakdown segments={segments} centerLabel="Total Engagements" centerValue={fmtNum(total)} />;
 }
 
 interface Props {

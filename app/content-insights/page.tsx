@@ -8,6 +8,7 @@ import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
 import { channelColor } from "@/lib/channelColors";
+import DonutBreakdown from "@/components/DonutBreakdown";
 import { exportDivToPng } from "@/lib/exportChartToPng";
 import { useRegisterCsvExport } from "@/components/ExportContext";
 
@@ -178,19 +179,15 @@ function ChannelPerformancePanel({ rows, selectedChannel, onSelectChannel }: {
     ? (valid.length ? `${(total / valid.length).toFixed(2)}%` : "—")
     : Math.round(total).toLocaleString();
 
-  const R = 70, SW = 36, CX = 100, CY = 100;
-  const circumference = 2 * Math.PI * R;
-
-  // cumPct-based arcStart (not the old "cumulative + quarter-turn offset"
-  // formula) so segments sit flush against each other with no gap; the
-  // +0.5 dasharray pad plus butt linecap closes the hairline seam between
-  // adjacent segments that would otherwise let the gray track show through.
-  let cumPct = 0;
   const segments = valid.map((row, i) => {
     const pct = total > 0 ? row.value / total : 0;
-    const arcStart = cumPct * circumference;
-    cumPct += pct;
-    return { label: row.label, value: row.value, pct, arcStart, color: channelColor(row.label, i) };
+    return {
+      label: row.label,
+      pct,
+      color: channelColor(row.label, i),
+      valueText: isCtr ? `${row.value.toFixed(2)}%` : `${(pct * 100).toFixed(1)}%`,
+      subText: isCtr ? undefined : `${Math.round(row.value).toLocaleString()} ${cfg.unit}`,
+    };
   });
 
   return (
@@ -214,53 +211,13 @@ function ChannelPerformancePanel({ rows, selectedChannel, onSelectChannel }: {
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-8 w-full">
-          <div className="shrink-0">
-            <svg viewBox="0 0 200 200" width={180} height={180}>
-              <circle cx={CX} cy={CY} r={R} fill="none" stroke="#f3f4f6" strokeWidth={SW} />
-              <g transform={`rotate(-90 ${CX} ${CY})`}>
-                {segments.map((seg, i) => (
-                  <circle key={i} cx={CX} cy={CY} r={R} fill="none"
-                    stroke={seg.color} strokeWidth={SW}
-                    strokeLinecap="butt"
-                    strokeDasharray={`${seg.pct * circumference + 0.5} ${circumference}`}
-                    strokeDashoffset={-seg.arcStart}
-                    opacity={selectedChannel === null || selectedChannel === seg.label ? 1 : 0.25}
-                    style={{ cursor: "pointer", transition: "opacity 0.15s" }}
-                    onClick={() => onSelectChannel(seg.label)} />
-                ))}
-              </g>
-              <text x={CX} y={CY - 8} textAnchor="middle" fontSize={13} fill="#6b7280" fontFamily="inherit">{cfg.totalLabel}</text>
-              <text x={CX} y={CY + 10} textAnchor="middle" fontSize={17} fontWeight="700" fill="#111827" fontFamily="inherit">
-                {center}
-              </text>
-            </svg>
-          </div>
-          <div className="flex flex-col gap-3 flex-1 min-w-0">
-            {segments.map((seg, i) => (
-              <div key={i}
-                onClick={() => onSelectChannel(seg.label)}
-                className="flex items-center gap-3 -mx-2 px-2 py-1 rounded-lg cursor-pointer transition-colors"
-                style={{ backgroundColor: selectedChannel === seg.label ? "#f3f4f6" : "transparent", opacity: selectedChannel === null || selectedChannel === seg.label ? 1 : 0.5 }}>
-                <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium text-gray-800 truncate">{seg.label}</span>
-                    <span className="text-sm font-semibold tabular-nums text-gray-800 shrink-0">
-                      {isCtr ? `${seg.value.toFixed(2)}%` : `${(seg.pct * 100).toFixed(1)}%`}
-                    </span>
-                  </div>
-                  <div className="mt-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${seg.pct * 100}%`, backgroundColor: seg.color }} />
-                  </div>
-                  {!isCtr && (
-                    <div className="text-xs text-gray-400 mt-0.5 tabular-nums">{Math.round(seg.value).toLocaleString()} {cfg.unit}</div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <DonutBreakdown
+          segments={segments}
+          centerLabel={cfg.totalLabel}
+          centerValue={center}
+          selected={selectedChannel}
+          onSelect={onSelectChannel}
+        />
       </div>
     </div>
   );
