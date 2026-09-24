@@ -238,8 +238,8 @@ export default function AIOpportunityFeed() {
             <div className="border border-t-0 border-gray-200 rounded-b-xl shadow-sm bg-white">
               {/* Column headers */}
               <div
-                className="sticky z-10 bg-white border-b border-gray-200 grid text-xs font-semibold"
-                style={{ top: titleBarHeight, color: "#111827", gridTemplateColumns: GRID, gap: GAP, padding: "10px 20px" }}
+                className="sticky z-10 bg-white border-b border-gray-200 grid text-[11px] font-semibold"
+                style={{ top: titleBarHeight, color: "#374151", gridTemplateColumns: GRID, gap: GAP, padding: "10px 20px" }}
               >
                 {COLS.map((c) => (
                   <span
