@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { ChevronDown, X, ArrowUp, ArrowDown, ArrowUpDown, Download, Info } from "lucide-react";
+import { ChevronDown, ArrowUp, ArrowDown, ArrowUpDown, Download, Info } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
+import DashboardGuideModal from "@/components/DashboardGuideModal";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
@@ -16,53 +16,6 @@ function fetchFieldOptions(field: "district" | "domain" | "state") {
       .then((d) => d.values ?? []);
 }
 
-// ─── Definitions modal ────────────────────────────────────────────────────────
-
-const DEFINITIONS = [
-  { term: "Interactive", def: "All reporting elements on the page are interactive." },
-  { term: "Filtering", def: "Filter the table using the dropdowns in the top left, or by clicking any chart bar to cross-filter." },
-  { term: "Reset", def: "To reset filters, click the Reset Filters button at the top right of the page." },
-  { term: "Sorting", def: "Sort the table by clicking any column header or using the Sort button at the top right of the page." },
-  { term: "Intel", def: "Account Intelligence signals including School Board Minutes, RFPs/Bids, Grants/Bonds, Strategic Initiatives, Leadership Changes, and District News. See the Account Intelligence dashboard for details." },
-  { term: "Topic", def: "Intent signals based on content consumption. See Topic Insights dashboard." },
-  { term: "Engagements", def: "The number of clicks on your ads, email opens and lead downloads." },
-  { term: "Intent Score", def: "A numerical value that indicates a district's likelihood to be in market derived from district data and total engagement" },
-];
-
-function DefinitionsModal({ onClose }: { onClose: () => void }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-  if (!mounted) return null;
-
-  return createPortal(
-    <div
-      style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}
-      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)" }} />
-      <div
-        style={{ position: "relative", background: "#fff", borderRadius: 16, boxShadow: "0 20px 60px rgba(0,0,0,0.18)", border: "1px solid #f0f0f0", padding: 24, maxWidth: 440, width: "calc(100% - 32px)" }}
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <span style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Dashboard Guide</span>
-          <button type="button" onClick={onClose} style={{ color: "#9ca3af", cursor: "pointer", background: "none", border: "none", padding: 0 }}>
-            <X size={16} />
-          </button>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {DEFINITIONS.map(({ term, def }) => (
-            <div key={term} style={{ display: "flex", gap: 12 }}>
-              <span style={{ fontWeight: 700, fontSize: 14, color: "#111", flexShrink: 0, minWidth: 90, paddingTop: 1 }}>{term}</span>
-              <span style={{ fontSize: 14, color: "#4b5563", lineHeight: 1.6 }}>{def}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>,
-    document.body
-  );
-}
 
 // ─── Sort dropdown ────────────────────────────────────────────────────────────
 
@@ -382,7 +335,7 @@ function EngagedUsersContent() {
           <SortDropdown sort={sort} onSort={setSort} />
         </div>
 
-        {showDefs && <DefinitionsModal onClose={() => setShowDefs(false)} />}
+        {showDefs && <DashboardGuideModal onClose={() => setShowDefs(false)} />}
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }} className="eu-scroll">

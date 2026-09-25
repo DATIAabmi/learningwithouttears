@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo } from "react";
-import { createPortal } from "react-dom";
-import { ChevronDown, Loader2, ArrowUp, ArrowDown, ArrowUpDown, Download, Info, X } from "lucide-react";
+import { ChevronDown, Loader2, ArrowUp, ArrowDown, ArrowUpDown, Download, Info } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
+import DashboardGuideModal from "@/components/DashboardGuideModal";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
@@ -91,48 +91,6 @@ function AvgTopicScoreChart({ rows, topicCol, scoreCol, loading }: {
   );
 }
 
-// ─── Definitions modal ────────────────────────────────────────────────────────
-
-const DEFINITIONS = [
-  { term: "Bombora Intent Signals", def: "Based on topics that districts are researching. Bombora detects intent when a district shows a pattern of increased content consumption compared to its baseline." },
-  { term: "Topic Score", def: "The average score of a district's total engagement with a topic." },
-  { term: "Score Ranges", def: "Low: 1–35 · Moderate: 36–65 · High: ≥66" },
-];
-
-function DefinitionsModal({ onClose }: { onClose: () => void }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-  if (!mounted) return null;
-
-  return createPortal(
-    <div
-      style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}
-      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)" }} onMouseDown={onClose} />
-      <div
-        style={{ position: "relative", background: "#fff", borderRadius: 16, boxShadow: "0 20px 60px rgba(0,0,0,0.18)", border: "1px solid #f0f0f0", padding: 24, maxWidth: 460, width: "calc(100% - 32px)" }}
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <span style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Dashboard Guide</span>
-          <button type="button" onClick={onClose} style={{ color: "#9ca3af", cursor: "pointer", background: "none", border: "none", padding: 0 }}>
-            <X size={16} />
-          </button>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {DEFINITIONS.map(({ term, def }) => (
-            <div key={term} style={{ display: "flex", gap: 12 }}>
-              <span style={{ fontWeight: 700, fontSize: 14, color: "#111", flexShrink: 0, minWidth: 110, paddingTop: 1 }}>{term}</span>
-              <span style={{ fontSize: 14, color: "#4b5563", lineHeight: 1.6 }}>{def}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>,
-    document.body
-  );
-}
 
 // ─── Sort dropdown ─────────────────────────────────────────────────────────────
 
@@ -401,7 +359,7 @@ function TopicInsightsContent() {
           <SortDropdown sort={sort} onSort={setSort} />
         </div>
 
-        {showDefs && <DefinitionsModal onClose={() => setShowDefs(false)} />}
+        {showDefs && <DashboardGuideModal onClose={() => setShowDefs(false)} />}
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }}>

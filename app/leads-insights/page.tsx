@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo } from "react";
-import { createPortal } from "react-dom";
-import { ChevronDown, Loader2, ArrowUp, ArrowDown, ArrowUpDown, Download, Info, X } from "lucide-react";
+import { ChevronDown, Loader2, ArrowUp, ArrowDown, ArrowUpDown, Download, Info } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
+import DashboardGuideModal from "@/components/DashboardGuideModal";
 import { useFilter } from "@/components/FilterContext";
 import MetabaseProviderWrapper from "@/components/MetabaseProvider";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
@@ -17,49 +17,6 @@ function fetchFieldOptions(field: "district" | "state" | "job_function" | "conte
       .then((d) => d.values ?? []);
 }
 
-// ─── Dashboard Guide modal ────────────────────────────────────────────────────
-
-const DEFINITIONS = [
-  { term: "Interactive", def: "All reporting elements on the page are interactive." },
-  { term: "Filtering", def: "Filter the table using the dropdowns in the top left, or by clicking any chart bar to cross-filter." },
-  { term: "Reset", def: "To reset filters, right-click on a filter table/chart and select Reset Action, or click Reset the Page at the top of the dashboard." },
-  { term: "Sorting", def: "The table can be sorted by clicking on any column header." },
-];
-
-function DefinitionsModal({ onClose }: { onClose: () => void }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-  if (!mounted) return null;
-
-  return createPortal(
-    <div
-      style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}
-      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.35)" }} onMouseDown={onClose} />
-      <div
-        style={{ position: "relative", background: "#fff", borderRadius: 16, boxShadow: "0 20px 60px rgba(0,0,0,0.18)", border: "1px solid #f0f0f0", padding: 24, maxWidth: 440, width: "calc(100% - 32px)" }}
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <span style={{ fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Dashboard Guide</span>
-          <button type="button" onClick={onClose} style={{ color: "#9ca3af", cursor: "pointer", background: "none", border: "none", padding: 0 }}>
-            <X size={16} />
-          </button>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {DEFINITIONS.map(({ term, def }) => (
-            <div key={term} style={{ display: "flex", gap: 12 }}>
-              <span style={{ fontWeight: 700, fontSize: 12, color: "#111", flexShrink: 0, minWidth: 80, paddingTop: 1 }}>{term}</span>
-              <span style={{ fontSize: 12, color: "#4b5563", lineHeight: 1.6 }}>{def}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>,
-    document.body
-  );
-}
 
 type SortDir = "asc" | "desc";
 interface SortState { col: number; dir: SortDir }
@@ -315,7 +272,7 @@ function LeadsInsightsContent() {
           <SortDropdown sort={sort} onSort={setSort} />
         </div>
 
-        {showDefs && <DefinitionsModal onClose={() => setShowDefs(false)} />}
+        {showDefs && <DashboardGuideModal onClose={() => setShowDefs(false)} />}
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }}>
