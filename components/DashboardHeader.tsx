@@ -67,7 +67,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
       {/* Global filters — Campaign + Date Range */}
       <div className="mt-2 pt-2 border-t border-gray-100 flex items-center gap-2 flex-wrap">
         <MultiSelectDropdown
-          label="ABMxi Campaign"
+          label="Campaign"
           value={displayCampaign}
           onChange={setCampaign}
           options={[...CAMPAIGNS]}

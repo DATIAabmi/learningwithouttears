@@ -49,7 +49,7 @@ export function EcosystemFilterBar() {
     <div className="flex items-center gap-2 mb-2">
       {/* Campaign pill */}
       <MultiSelectDropdown
-        label="ABMxi Campaign"
+        label="Campaign"
         value={campaign}
         onChange={setCampaign}
         options={[...CAMPAIGNS]}
