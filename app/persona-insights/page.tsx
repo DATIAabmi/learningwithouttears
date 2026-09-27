@@ -116,20 +116,20 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
 
   return (
     <div className="bg-white">
-      <table className="text-xs border-collapse table-fixed" style={{ width: 1176, minWidth: 1176 }}>
+      <table className="text-xs border-collapse table-fixed" style={{ width: 1172, minWidth: 1172 }}>
         <colgroup>
           <col style={{ width: 36 }} />   {/* # */}
           <col style={{ width: 380 }} />  {/* District */}
           <col style={{ width: 230 }} />  {/* Domain */}
-          <col style={{ width: 50 }} />   {/* State */}
+          <col style={{ width: 48 }} />   {/* State */}
           <col style={{ width: 80 }} />   {/* Campaign */}
           <col style={{ width: 240 }} />  {/* Job Function */}
           <col style={{ width: 88 }} />   {/* Engagements */}
-          <col style={{ width: 72 }} />   {/* Leads */}
+          <col style={{ width: 70 }} />   {/* Leads */}
         </colgroup>
         <thead>
           <tr className="border-b border-gray-200">
-            <th className="sticky z-10 bg-white px-2 py-2 text-center w-10 text-[11px] font-semibold whitespace-nowrap border-b border-gray-200" style={{ color: "#374151", top: headerTop }}>#</th>
+            <th className="sticky z-10 bg-white px-3 py-2 text-center w-10 text-[11px] font-semibold whitespace-nowrap border-b border-gray-200" style={{ color: "#374151", top: headerTop }}>#</th>
             {COL_ORDER.map((j) => {
               const col = cols[j];
               if (!col) return null;
@@ -139,7 +139,7 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
               return (
                 <th key={j}
                   onClick={() => onSort({ col: j, dir: active && sort.dir === "desc" ? "asc" : "desc" })}
-                  className={`sticky z-10 bg-white px-2 py-2 text-[11px] font-semibold whitespace-nowrap cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200 ${isLeft ? "text-left" : "text-center"}`}
+                  className={`sticky z-10 bg-white px-3 py-2 text-[11px] font-semibold whitespace-nowrap cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200 ${isLeft ? "text-left" : "text-center"}`}
                   style={{ color: "#374151", top: headerTop }}
                 >
                   <span className={`inline-flex items-center gap-0.5 ${isLeft ? "justify-start" : "justify-center"}`}>
@@ -156,13 +156,13 @@ function DataTable({ cols, rows, sort, onSort, headerTop = 0 }: {
         <tbody>
           {sorted.map((row, i) => (
             <tr key={i} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-              <td className="px-3 py-1.5 text-center text-gray-400 text-xs w-10 shrink-0">{i + 1}</td>
+              <td className="px-2 py-1.5 text-center text-gray-400 text-xs w-10 shrink-0">{i + 1}</td>
               {COL_ORDER.map((j) => {
                 const cell = row[j];
                 const isNum = NUMBER_TYPES.has(cols[j]?.base_type);
                 const isLeft = LEFT_ALIGN_INDICES.has(j);
                 return (
-                  <td key={j} className={`px-4 py-1.5 ${isLeft ? "text-left" : "text-center"} ${isNum ? "tabular-nums whitespace-nowrap" : ""} text-gray-800`}>
+                  <td key={j} className={`px-3 py-1.5 ${isLeft ? "text-left" : "text-center"} ${isNum ? "tabular-nums whitespace-nowrap" : ""} text-gray-800`}>
                     {cell === null || cell === undefined ? "" : String(cell)}
                   </td>
                 );
@@ -309,7 +309,7 @@ function PersonaInsightsContent() {
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }}>
-        <div style={{ minWidth: 1176, width: "100%" }}>
+        <div style={{ minWidth: 1172, width: "100%" }}>
         {/* Section title */}
         <div ref={titleBarRef} className="sticky top-0 z-20 bg-gray-900 text-white px-5 py-3 rounded-t-xl flex items-center justify-between">
           <div className="flex items-center gap-3">
