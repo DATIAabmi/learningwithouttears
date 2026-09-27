@@ -33,20 +33,20 @@ export default function DashboardGuideModal({ onClose }: { onClose: () => void }
       <div
         role="dialog"
         aria-label="Dashboard Guide"
-        style={{ position: "relative", background: "#fff", borderRadius: 16, boxShadow: "0 20px 60px rgba(0,0,0,0.18)", border: "1px solid #f0f0f0", padding: 24, maxWidth: 640, width: "calc(100% - 32px)", maxHeight: "88vh", overflowY: "auto" }}
+        style={{ position: "relative", background: "#fff", borderRadius: 16, boxShadow: "0 20px 60px rgba(0,0,0,0.18)", border: "1px solid #f0f0f0", padding: 24, maxWidth: 520, width: "calc(100% - 32px)", maxHeight: "88vh", overflowY: "auto" }}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <span style={{ fontWeight: 700, fontSize: 14, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Dashboard Guide</span>
+          <span style={{ fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "#111" }}>Dashboard Guide</span>
           <button type="button" onClick={onClose} aria-label="Close" style={{ color: "#9ca3af", cursor: "pointer", background: "none", border: "none", padding: 0 }}>
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {DEFINITIONS.map(({ term, def }) => (
-            <div key={term} style={{ display: "flex", gap: 16 }}>
-              <span style={{ fontWeight: 700, fontSize: 13, color: "#111", flexShrink: 0, width: 140, paddingTop: 1 }}>{term}</span>
-              <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.6 }}>{def}</span>
+            <div key={term} style={{ display: "flex", gap: 12 }}>
+              <span style={{ fontWeight: 700, fontSize: 12, color: "#111", flexShrink: 0, width: 140, paddingTop: 1 }}>{term}</span>
+              <span style={{ fontSize: 12, color: "#4b5563", lineHeight: 1.6 }}>{def}</span>
             </div>
           ))}
         </div>

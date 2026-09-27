@@ -29,9 +29,10 @@ interface SortState { col: number; dir: SortDir }
 
 const SORT_COLUMNS = [
   { label: "District", index: 0 },
+  { label: "Domain", index: 1 },
   { label: "State", index: 2 },
-  { label: "Job Function", index: 3 },
   { label: "Campaign", index: 4 },
+  { label: "Job Function", index: 3 },
   { label: "Engagements", index: 5 },
   { label: "Leads", index: 6 },
 ];
