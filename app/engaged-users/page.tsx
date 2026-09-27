@@ -143,13 +143,10 @@ const NUMBER_TYPES = new Set(["type/Integer","type/BigInteger","type/Float","typ
 const isLeftCol = (j: number) => j === 0 || j === 1;
 const SCORE_TREND_COL = 11;
 
-// Fixed per-column widths (px), matching Right At School's column layout,
-// so headers land evenly spaced instead of auto-sizing to content. Sticky
-// <th> cells each paint their own opaque background (RAS's single grid
-// container shares one), so an overflowing label here would visually clip
-// against the next header instead of just overlapping it — "Engagements"
-// is widened slightly beyond RAS's 90px to keep it on one line without that.
-const COL_WIDTHS = [380, 160, 48, 80, 52, 52, 130, 80, 60, 100, 80, 100];
+// Fixed per-column widths (px), matching Right At School's EU_COLS exactly.
+const COL_WIDTHS = [380, 180, 65, 95, 65, 65, 120, 125, 75, 140, 115, 145];
+const HASH_COL_WIDTH = 36;
+const TABLE_WIDTH = HASH_COL_WIDTH + COL_WIDTHS.reduce((a, b) => a + b, 0);
 
 // Shorter/matches-reference labels so multi-word headers can wrap onto two
 // lines instead of forcing extra column width.
@@ -194,10 +191,10 @@ function DataTable({
 
   return (
     <div className="bg-white">
-      <table className="text-xs border-collapse" style={{ width: 1354, minWidth: 1354, tableLayout: "fixed" }}>
+      <table className="border-collapse" style={{ width: TABLE_WIDTH, minWidth: TABLE_WIDTH, tableLayout: "fixed" }}>
         <thead>
           <tr className="border-b border-gray-200">
-            <th className="sticky z-10 bg-white px-3 py-3 text-[11px] font-semibold text-gray-700 border-b border-gray-200" style={{ textAlign: "center", top: headerTop, width: 32 }}>#</th>
+            <th className="sticky z-10 bg-white px-3 py-3 font-semibold text-gray-700 border-b border-gray-200 whitespace-nowrap" style={{ textAlign: "center", top: headerTop, width: HASH_COL_WIDTH, fontSize: 10 }}>#</th>
             {cols.map((col, j) => {
               const active = sort.col === j;
               const left = isLeftCol(j);
@@ -205,9 +202,9 @@ function DataTable({
               return (
                 <th key={j}
                   onClick={() => onSort({ col: j, dir: active && sort.dir === "desc" ? "asc" : "desc" })}
-                  className="sticky z-10 bg-white px-3 py-3 text-[11px] font-semibold text-gray-700 cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200"
-                  style={{ textAlign: left ? "left" : "center", top: headerTop, width: COL_WIDTHS[j] }}>
-                  <span className={`inline-flex items-center gap-0.5 ${left ? "justify-start" : "justify-center"}`}>
+                  className="sticky z-10 bg-white px-3 py-3 font-semibold text-gray-700 cursor-pointer select-none hover:opacity-70 leading-tight border-b border-gray-200"
+                  style={{ textAlign: left ? "left" : "center", top: headerTop, width: COL_WIDTHS[j], fontSize: 10 }}>
+                  <span className={`inline-flex items-center gap-0.5 whitespace-nowrap ${left ? "justify-start" : "justify-center"}`}>
                     <span>{label}</span>
                     {active
                       ? (sort.dir === "asc" ? <ArrowUp size={10} className="shrink-0" /> : <ArrowDown size={10} className="shrink-0" />)
@@ -223,12 +220,13 @@ function DataTable({
             const trend = trendColor(row);
             return (
               <tr key={i} className="border-b border-gray-100" style={{ backgroundColor: trend?.bg, color: trend?.text }}>
-                <td className="px-4 py-3 text-gray-400 text-[13px] font-medium" style={{ textAlign: "center" }}>{i + 1}</td>
+                <td className="px-3 py-3 text-gray-400 font-medium" style={{ textAlign: "center", fontSize: 11 }}>{i + 1}</td>
                 {row.map((cell, j) => {
                   const display = cell === null || cell === undefined ? "" : String(cell);
                   const left = isLeftCol(j);
                   return (
-                    <td key={j} className={`px-4 py-3 ${trend ? "" : "text-gray-800"} ${left ? "text-left" : "text-center tabular-nums"}`}>
+                    <td key={j} className={`px-3 py-2.5 tabular-nums ${trend ? "" : "text-gray-800"} ${left ? "text-left" : "text-center"}`}
+                      style={{ fontSize: 12, overflow: "hidden", whiteSpace: j === 0 ? "normal" : "nowrap", textOverflow: j === 0 ? "unset" : "ellipsis" }}>
                       {j === 0 ? (
                         <button onClick={() => onDistrictClick(display)}
                           className="block w-full text-left hover:underline font-medium"
@@ -340,7 +338,7 @@ function EngagedUsersContent() {
 
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", WebkitOverflowScrolling: "touch", padding: "0 24px 24px" }} className="eu-scroll">
         <style>{`.eu-scroll::-webkit-scrollbar{width:10px}.eu-scroll::-webkit-scrollbar-track{background:#e5e7eb;border-radius:5px}.eu-scroll::-webkit-scrollbar-thumb{background:#6b7280;border-radius:5px}.eu-scroll::-webkit-scrollbar-thumb:hover{background:#374151}`}</style>
-        <div style={{ minWidth: 1354, width: "100%" }}>
+        <div style={{ minWidth: TABLE_WIDTH, width: "100%" }}>
         <div ref={titleBarRef} className="sticky top-0 z-20 bg-gray-900 text-white px-5 py-3 rounded-t-xl flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="font-bold text-sm tracking-wide uppercase">Engaged Users By District</span>
