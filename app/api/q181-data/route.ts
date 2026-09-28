@@ -28,6 +28,26 @@ type Dataset = { cols: { display_name: string; base_type: string }[]; rows: unkn
 const memCache = new Map<string, { data: Dataset; ts: number }>();
 const inflight = new Map<string, Promise<Dataset>>();
 
+// Metabase caps a single /api/dataset call at 10,000 rows (instance settings
+// unaggregated-query-row-limit / aggregated-query-row-limit) regardless of
+// the "constraints" requested — this dataset regularly exceeds that, so we
+// page through it with LIMIT/OFFSET until a page comes back short.
+const PAGE_SIZE = 10000;
+const MAX_PAGES = 10; // safety cap — 100,000 rows is far beyond any real dataset here
+
+async function fetchPage(baseSql: string, offset: number): Promise<{ cols: unknown[]; rows: unknown[][] } | null> {
+  const sql = `${baseSql}\nLIMIT ${PAGE_SIZE} OFFSET ${offset}`;
+  const res = await fetch(`${METABASE_URL}/api/dataset`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
+    body: JSON.stringify({ database: DB_ID, type: "native", native: { query: sql } }),
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return { cols: data.data?.cols ?? [], rows: data.data?.rows ?? [] };
+}
+
 async function fetchDataset(campaignNums: number[], dateStart: string, dateEnd: string): Promise<Dataset> {
   const where: string[] = [
     "item.bombora_score IS NOT NULL",
@@ -45,7 +65,7 @@ async function fetchDataset(campaignNums: number[], dateStart: string, dateEnd: 
     where.push(`DATE(sc.last_updated) BETWEEN '${dateStart}' AND '${dateEnd}'`);
   }
 
-  const sql = `
+  const baseSql = `
 SELECT
   item.SBM_district AS District,
   sc.email_domain AS Domain,
@@ -64,23 +84,25 @@ GROUP BY
   sc.abm_campaign_num,
   item.SBM_state,
   item.topics
-ORDER BY Topic_Score DESC`;
+ORDER BY Topic_Score DESC, item.SBM_district, sc.email_domain, item.topics`;
 
-  const res = await fetch(`${METABASE_URL}/api/dataset`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
-    body: JSON.stringify({ database: DB_ID, type: "native", native: { query: sql }, constraints: { "max-results": 1000000 } }),
-    cache: "no-store",
-  });
+  let cols: { display_name: string; base_type: string }[] = [];
+  const allRows: unknown[][] = [];
 
-  if (!res.ok) return { cols: [], rows: [] };
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const result = await fetchPage(baseSql, page * PAGE_SIZE);
+    if (!result) break;
+    if (page === 0) {
+      cols = (result.cols as { display_name: string; base_type: string }[]).map((c) => ({
+        display_name: c.display_name === "Topic_Score" ? "Topic Score" : c.display_name,
+        base_type: c.base_type,
+      }));
+    }
+    allRows.push(...result.rows);
+    if (result.rows.length < PAGE_SIZE) break;
+  }
 
-  const data = await res.json();
-  const cols = (data.data?.cols ?? []).map((c: { display_name: string; base_type: string }) => ({
-    display_name: c.display_name === "Topic_Score" ? "Topic Score" : c.display_name,
-    base_type: c.base_type,
-  }));
-  const rows: unknown[][] = (data.data?.rows ?? []).map((row: unknown[]) =>
+  const rows: unknown[][] = allRows.map((row) =>
     row.map((val, j) => (j === DATE_COL_INDEX ? fmtDate(val) : val))
   );
   return { cols, rows };
