@@ -101,7 +101,7 @@ function LoginForm() {
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
               <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "#374151", marginBottom: 6 }}>
-                Email
+                Metabase Email
               </label>
               <input
                 type="email"
@@ -188,7 +188,7 @@ function LoginForm() {
           </form>
 
           <p style={{ marginTop: 20, textAlign: "center", fontSize: 12, color: "#9ca3af" }}>
-            Use your account credentials
+            Use your Metabase account credentials
           </p>
         </div>
       </div>

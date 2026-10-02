@@ -91,7 +91,7 @@ export default function DonutBreakdown({ segments, centerLabel, centerValue, sel
               <span className="w-px h-9 bg-gray-200 shrink-0" />
               <span className="text-[15px] font-bold text-gray-900 tabular-nums shrink-0" style={{ width: 64 }}>{seg.valueText}</span>
               <span className="w-px h-9 bg-gray-200 shrink-0" />
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0" style={{ width: 180, maxWidth: 180 }}>
                 <div className="text-sm text-gray-500 tabular-nums mb-1.5 h-5 truncate">{seg.subText ?? ""}</div>
                 <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div className="h-full rounded-full" style={{ width: `${seg.pct * 100}%`, backgroundColor: seg.color }} />

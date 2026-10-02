@@ -101,11 +101,13 @@ export default function MultiSelectDropdown(props: Props) {
         } ${open ? "ring-2 ring-blue-100 border-blue-300" : ""}`}
         style={{ minWidth }}
       >
-        <span className={`text-[13px] font-bold uppercase tracking-wider shrink-0 ${active ? "text-blue-400" : "text-gray-400"}`}>
-          {label.split(/(ABMxi)/).map((part, i) =>
-            part === "ABMxi" ? <span key={i}>ABM<span className="lowercase">xi</span></span> : part
-          )}
-        </span>
+        {!active && (
+          <span className="text-[13px] font-bold uppercase tracking-wider shrink-0 text-gray-400">
+            {label.split(/(ABMxi)/).map((part, i) =>
+              part === "ABMxi" ? <span key={i}>ABM<span className="lowercase">xi</span></span> : part
+            )}
+          </span>
+        )}
         <span className="flex-1 text-left truncate text-xs">
           {active
             ? <span className="text-blue-700 font-semibold">{summarize(value)}</span>
