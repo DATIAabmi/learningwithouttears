@@ -11,7 +11,7 @@ function parseList(v: string | null): string[] {
   return (v ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 }
 
-const STATIC_COLS = [
+export const STATIC_COLS = [
   { display_name: "District",      base_type: "type/Text" },
   { display_name: "Campaign",      base_type: "type/Text" },
   { display_name: "District Domain", base_type: "type/Text" },
@@ -60,7 +60,7 @@ async function fetchFullDataset() {
   return { rows };
 }
 
-async function getDataset() {
+export async function getDataset() {
   if (memCache && Date.now() - memCacheAt < CACHE_TTL_MS) return memCache;
   if (!inflightPromise) {
     inflightPromise = fetchFullDataset().then((result) => {

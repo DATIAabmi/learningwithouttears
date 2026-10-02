@@ -6,7 +6,6 @@ import DashboardHeader from "@/components/DashboardHeader";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
-import { useRegisterCsvExport } from "@/components/ExportContext";
 import { fmtDate } from "@/lib/fmtDate";
 
 type Signal = Record<string, unknown>;
@@ -187,7 +186,6 @@ export default function AIOpportunityFeed() {
   ].map((k) => ({ display_name: k, base_type: "type/Text" }));
   const csvRows = sorted.map((r) => csvCols.map((c) => r[c.display_name]));
 
-  useRegisterCsvExport(() => exportToCsv("account-intelligence", csvCols as never, csvRows as never));
 
   return (
     <div style={{ position: "fixed", top: 0, left: "12rem", right: 0, bottom: 0,

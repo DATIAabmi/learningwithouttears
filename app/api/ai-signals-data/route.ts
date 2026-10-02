@@ -17,7 +17,7 @@ let memCache: SignalCache | null = null;
 let memCacheAt = 0;
 const CACHE_TTL_MS = 30 * 60 * 1000;
 
-async function fetchSignals(): Promise<SignalCache> {
+export async function fetchSignals(): Promise<SignalCache> {
   if (memCache && Date.now() - memCacheAt < CACHE_TTL_MS) return memCache;
 
   const res = await fetch(`${METABASE_URL}/api/dataset`, {

@@ -1,17 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { CalendarSearch, X, RotateCcw, LogOut, Download } from "lucide-react";
+import { CalendarSearch, X, RotateCcw, LogOut, FileSpreadsheet, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useFilter } from "@/components/FilterContext";
-import { useExport } from "@/components/ExportContext";
 import { CAMPAIGNS, campaignDateRange } from "@/lib/campaigns";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 
-export default function DashboardHeader({ legend }: { legend?: string }) {
+export default function DashboardHeader({ legend, onExport }: { legend?: string; onExport?: () => Promise<void> }) {
   const { campaign, setCampaign, dateStart, dateEnd, setDateStart, setDateEnd, resetAll } = useFilter();
-  const { csvExport } = useExport();
   const router = useRouter();
+  const [exporting, setExporting] = useState(false);
 
   async function handleSignOut() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -19,22 +19,42 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
     router.refresh();
   }
 
-  // With only one campaign to date, "nothing selected" and "C1 selected" mean the
-  // same thing — show C1 as selected instead of an ambiguous "All Campaigns".
-  // Once a second campaign exists this naturally falls back to real All/multi-select
-  // behavior; the underlying filter state stays untouched (still no filter applied).
-  const displayCampaign = campaign.length > 0 || CAMPAIGNS.length !== 1 ? campaign : CAMPAIGNS;
+  async function handleExport() {
+    setExporting(true);
+    try {
+      if (onExport) {
+        await onExport();
+        return;
+      }
+      const params = new URLSearchParams();
+      if (campaign.length) params.set("campaign", campaign.join(","));
+      if (dateStart) params.set("dateStart", dateStart);
+      if (dateEnd)   params.set("dateEnd",   dateEnd);
+      const res  = await fetch(`/api/export-excel?${params.toString()}`);
+      const blob = await res.blob();
+      const cd   = res.headers.get("Content-Disposition") ?? "";
+      const name = cd.match(/filename="([^"]+)"/)?.[1] ?? "datia-export.xlsx";
+      const a    = Object.assign(document.createElement("a"), {
+        href: URL.createObjectURL(blob),
+        download: name,
+      });
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const subtitle =
-    displayCampaign.length === 0
+    campaign.length === 0
       ? "All Campaigns"
-      : displayCampaign.length === 1
-      ? campaignDateRange(displayCampaign[0])
-      : `${displayCampaign.length} Campaigns Selected`;
+      : campaign.length === 1
+      ? campaignDateRange(campaign[0])
+      : `${campaign.length} Campaigns Selected`;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 py-3 mb-4">
-      <div className="relative flex items-center">
+      <div className="flex items-center">
         {/* Left: Learning Without Tears logo */}
         <div className="flex-shrink-0 flex items-center gap-4">
           <Image
@@ -49,15 +69,15 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
           <div className="self-stretch w-px bg-gray-200 shrink-0" />
         </div>
 
-        {/* Center: absolutely centered in the full card */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+        {/* Center: truly centered between logo and right edge */}
+        <div className="flex-1 flex flex-col items-center justify-center text-center">
           <h1
             className="font-bold text-gray-900 leading-tight"
-            style={{ fontFamily: "'Lato', sans-serif", fontSize: "36px", letterSpacing: "-0.5px" }}
+            style={{ fontFamily: "'Lato', sans-serif", fontSize: "30px", letterSpacing: "-0.5px" }}
           >
             ABMxi
           </h1>
-          <p className="mt-1 font-medium" style={{ fontSize: "14px", color: "#6b8cba" }}>
+          <p className="mt-1 font-medium" style={{ fontSize: "12px", color: "#6b8cba" }}>
             {subtitle}
           </p>
           <div className="h-0.5 bg-red-500 mt-1.5 rounded-full" style={{ width: 44 }} />
@@ -68,7 +88,7 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
       <div className="mt-2 pt-2 border-t border-gray-100 flex items-center gap-2 flex-wrap">
         <MultiSelectDropdown
           label="Campaign"
-          value={displayCampaign}
+          value={campaign}
           onChange={setCampaign}
           options={[...CAMPAIGNS]}
           minWidth={220}
@@ -84,13 +104,13 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
           <div className="relative flex items-center">
             {!dateStart && <span className="absolute left-0 text-xs text-gray-400 pointer-events-none select-none">Start</span>}
             <input type="date" value={dateStart} onChange={(e) => setDateStart(e.target.value)}
-              className={`text-xs text-gray-700 bg-transparent border-none outline-none cursor-pointer ${dateStart ? "w-[110px]" : "w-[30px] opacity-0"}`} />
+              className={`text-xs text-gray-700 bg-transparent border-none outline-none cursor-pointer ${dateStart ? "w-[95px]" : "w-[30px] opacity-0"}`} />
           </div>
           <span className="text-gray-400 text-xs">–</span>
           <div className="relative flex items-center">
             {!dateEnd && <span className="absolute left-0 text-xs text-gray-400 pointer-events-none select-none">End</span>}
             <input type="date" value={dateEnd} onChange={(e) => setDateEnd(e.target.value)}
-              className={`text-xs text-gray-700 bg-transparent border-none outline-none cursor-pointer ${dateEnd ? "w-[110px]" : "w-[28px] opacity-0"}`} />
+              className={`text-xs text-gray-700 bg-transparent border-none outline-none cursor-pointer ${dateEnd ? "w-[95px]" : "w-[28px] opacity-0"}`} />
           </div>
           {(dateStart || dateEnd) && (
             <button onClick={() => { setDateStart(""); setDateEnd(""); }} className="text-gray-300 hover:text-gray-500 ml-0.5">
@@ -107,17 +127,16 @@ export default function DashboardHeader({ legend }: { legend?: string }) {
           <RotateCcw size={13} />
           Reset Filters
         </button>
-        {csvExport && (
-          <button
-            type="button"
-            onClick={csvExport}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs text-emerald-700 hover:text-emerald-900 border border-emerald-300 hover:border-emerald-500 rounded-lg bg-white transition-colors shrink-0"
-            title="Export this tab's data to CSV"
-          >
-            <Download size={13} />
-            Export
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={exporting}
+          className="flex items-center gap-1.5 px-3 py-2 text-xs text-emerald-700 hover:text-emerald-900 border border-emerald-300 hover:border-emerald-500 rounded-lg bg-white transition-colors shrink-0 disabled:opacity-60 disabled:cursor-wait"
+          title="Export all table data to Excel"
+        >
+          {exporting ? <Loader2 size={13} className="animate-spin" /> : <FileSpreadsheet size={13} />}
+          {exporting ? "Exporting…" : "Export All"}
+        </button>
         <button
           type="button"
           onClick={handleSignOut}

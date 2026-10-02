@@ -4,6 +4,33 @@ import { cachedJson } from "@/lib/apiCache";
 const METABASE_URL = process.env.NEXT_PUBLIC_METABASE_URL!;
 const API_KEY = process.env.METABASE_ADMIN_API_KEY!;
 
+function normalizeColName(name: string, displayName: string): string {
+  const key = name.toLowerCase();
+  if (key === "job_function") return "Job Function";
+  if (key.includes("district") && key.includes("domain")) return "Domain";
+  if (displayName.toLowerCase().includes("district") && displayName.toLowerCase().includes("domain")) return "Domain";
+  return displayName;
+}
+
+// Unfiltered fetch (no date/district/state/job-function narrowing) — used by
+// the Excel export, which wants every row from card 588.
+export async function fetchAll() {
+  const res = await fetch(`${METABASE_URL}/api/card/588/query`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
+    body: JSON.stringify({ parameters: [] }),
+    cache: "no-store",
+  });
+  if (!res.ok) return { cols: [], rows: [] };
+  const data = await res.json();
+  const cols = (data.data?.cols ?? []).map((c: { name: string; display_name: string; base_type: string }) => ({
+    display_name: normalizeColName(c.name, c.display_name),
+    base_type: c.base_type,
+  }));
+  const rows: unknown[][] = data.data?.rows ?? [];
+  return { cols, rows };
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const dateStart    = searchParams.get("dateStart") ?? "";

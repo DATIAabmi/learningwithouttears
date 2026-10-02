@@ -54,7 +54,7 @@ async function fetchFullDataset() {
   return { cols, rows };
 }
 
-async function getDataset() {
+export async function getDataset() {
   if (memCache && Date.now() - memCacheAt < CACHE_TTL_MS) return memCache;
   if (!inflightPromise) {
     inflightPromise = fetchFullDataset().then((result) => {

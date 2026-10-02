@@ -7,7 +7,6 @@ import DashboardGuideModal from "@/components/DashboardGuideModal";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
-import { useRegisterCsvExport } from "@/components/ExportContext";
 // strict=1 scopes options to values that actually appear in this page's
 // underlying data (card 588 requires District/Domain/State/Job Function/
 // Campaign to all be populated together) — otherwise the dropdown offers
@@ -279,7 +278,6 @@ function PersonaInsightsContent() {
     [rows],
   );
 
-  useRegisterCsvExport(() => exportToCsv("persona-insights", exportCols, exportRows));
 
   return (
     <div style={{ position: "fixed", top: 0, left: "12rem", right: 0, bottom: 0,

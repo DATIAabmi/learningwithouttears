@@ -62,7 +62,7 @@ function buildParams(cardId: number, campaign: string, dateStart: string, dateEn
   return params;
 }
 
-async function fetchSummaryForCampaign(campaign: string, dateStart: string, dateEnd: string) {
+export async function fetchSummaryForCampaign(campaign: string, dateStart: string, dateEnd: string) {
   const [r175, r176, r177, r178, r179, r180] = await Promise.all([
     fetchCard(593, buildParams(593, campaign, dateStart, dateEnd)),
     fetchCard(594, buildParams(594, campaign, dateStart, dateEnd)),

@@ -15,7 +15,7 @@ function parseList(v: string | null): string[] {
   return (v ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 }
 
-async function fetchForCampaign(campaign: string, dateStart: string, dateEnd: string, contentName: string) {
+export async function fetchForCampaign(campaign: string, dateStart: string, dateEnd: string, contentName: string) {
   const parameters: object[] = [];
 
   if (campaign) parameters.push({

@@ -3,7 +3,6 @@
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { FilterProvider } from "./FilterContext";
-import { ExportProvider } from "./ExportContext";
 import Sidebar from "./Sidebar";
 
 export default function LayoutShell({ children }: { children: ReactNode }) {
@@ -15,10 +14,8 @@ export default function LayoutShell({ children }: { children: ReactNode }) {
 
   return (
     <FilterProvider>
-      <ExportProvider>
-        <Sidebar />
-        <main className="ml-48 min-h-screen p-8">{children}</main>
-      </ExportProvider>
+      <Sidebar />
+      <main className="ml-48 min-h-screen p-8">{children}</main>
     </FilterProvider>
   );
 }

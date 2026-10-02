@@ -8,7 +8,6 @@ import { useFilter } from "@/components/FilterContext";
 import MetabaseProviderWrapper from "@/components/MetabaseProvider";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
-import { useRegisterCsvExport } from "@/components/ExportContext";
 
 const KEYWORDS = ["after school", "child care", "head start", "enrichment"];
 
@@ -311,7 +310,6 @@ function SchoolBoardContent() {
     return true;
   });
 
-  useRegisterCsvExport(() => exportToCsv("school-board-minutes", allCols, filteredRows));
 
   return (
     <MetabaseProviderWrapper>

@@ -8,6 +8,29 @@ function parseList(v: string | null): string[] {
   return (v ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 }
 
+// Unfiltered fetch — used by the Excel export, which wants every row from card 589.
+export async function fetchAll() {
+  const DISPLAY_NAMES: Record<string, string> = { Engaged_Users: "Engaged Users", leads: "Leads" };
+  try {
+    const res = await fetch(`${METABASE_URL}/api/card/589/query`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
+      body: JSON.stringify({ parameters: [] }),
+      cache: "no-store",
+    });
+    if (!res.ok) return { cols: [], rows: [] };
+    const data = await res.json();
+    const cols = (data.data?.cols ?? []).map((c: { display_name: string; base_type: string }) => ({
+      display_name: DISPLAY_NAMES[c.display_name] ?? c.display_name,
+      base_type: c.base_type,
+    }));
+    const rows: unknown[][] = data.data?.rows ?? [];
+    return { cols, rows };
+  } catch {
+    return { cols: [], rows: [] };
+  }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const campaigns = parseList(searchParams.get("campaign"));

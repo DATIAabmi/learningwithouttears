@@ -94,7 +94,7 @@ function mergeChannelClicks(rowSets: unknown[][][]): unknown[][] {
     .sort((a, b) => (b[1] as number) - (a[1] as number));
 }
 
-async function fetchContentForCampaign(campaign: string, dateStart: string, dateEnd: string) {
+export async function fetchContentForCampaign(campaign: string, dateStart: string, dateEnd: string) {
   const [rows200, rows201, rows202, rows203, rows204] = await Promise.all([
     fetchCard(600, buildParams(600, campaign, dateStart, dateEnd)),
     fetchCard(601, buildParams(601, campaign, dateStart, dateEnd)),

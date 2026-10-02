@@ -108,7 +108,7 @@ ORDER BY Topic_Score DESC, item.SBM_district, sc.email_domain, item.topics`;
   return { cols, rows };
 }
 
-async function getDataset(campaignNums: number[], dateStart: string, dateEnd: string): Promise<Dataset> {
+export async function getDataset(campaignNums: number[], dateStart: string, dateEnd: string): Promise<Dataset> {
   const key = `${[...campaignNums].sort().join(",")}|${dateStart}|${dateEnd}`;
   const cached = memCache.get(key);
   if (cached && Date.now() - cached.ts < CACHE_TTL_MS) return cached.data;

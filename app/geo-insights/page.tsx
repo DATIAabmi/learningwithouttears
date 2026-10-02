@@ -8,7 +8,6 @@ import MetabaseProviderWrapper from "@/components/MetabaseProvider";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import UsStateChoropleth from "@/components/UsStateChoropleth";
 import { exportToCsv } from "@/lib/exportCsv";
-import { useRegisterCsvExport } from "@/components/ExportContext";
 function fetchFieldOptions(field: "district" | "state") {
   return (q: string) =>
     fetch(`/api/filter-search?field=${field}&q=${encodeURIComponent(q)}`)
@@ -91,7 +90,6 @@ function GeographyTable({
 
   const displayName = (name: string) => name;
 
-  useRegisterCsvExport(() => exportToCsv("engagements-by-geography", cols, filteredRows));
 
   return (
     <div>

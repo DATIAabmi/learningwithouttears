@@ -7,7 +7,6 @@ import DashboardGuideModal from "@/components/DashboardGuideModal";
 import { useFilter } from "@/components/FilterContext";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import { exportToCsv } from "@/lib/exportCsv";
-import { useRegisterCsvExport } from "@/components/ExportContext";
 function fetchFieldOptions(field: "district" | "state" | "topic") {
   return (q: string) =>
     fetch(`/api/filter-search?field=${field}&q=${encodeURIComponent(q)}`)
@@ -331,7 +330,6 @@ function TopicInsightsContent() {
     [rows],
   );
 
-  useRegisterCsvExport(() => exportToCsv("topic-insights", exportCols, exportRows));
 
   return (
     <div style={{ position: "fixed", top: 0, left: "12rem", right: 0, bottom: 0,

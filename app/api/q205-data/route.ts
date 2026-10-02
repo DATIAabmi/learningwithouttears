@@ -34,13 +34,9 @@ async function linkReachable(url: string): Promise<boolean> {
   }
 }
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = req.nextUrl;
-  const campaigns = parseList(searchParams.get("campaign"));
-  const channels  = parseList(searchParams.get("channel"));
-  const dateStart = searchParams.get("dateStart") ?? "";
-  const dateEnd   = searchParams.get("dateEnd")   ?? "";
+export const CONTENT_ENGAGEMENTS_COLS = ["Image", "Asset Name", "Asset Link", "Campaign", "Impressions", "Clicks", "CTR"];
 
+export async function fetchRows(campaigns: string[], channels: string[], dateStart: string, dateEnd: string) {
   // Some rows in the underlying table have no asset_name/URL/image at all
   // (untagged engagement data not tied to any real gated-content asset) --
   // exclude them unconditionally so a blank phantom row never shows up in
@@ -76,7 +72,7 @@ ORDER BY Impressions DESC`;
     cache: "no-store",
   });
 
-  if (!res.ok) return NextResponse.json({ error: "Metabase error" }, { status: 500 });
+  if (!res.ok) return { rows: [] as unknown[][], error: "Metabase error" };
 
   const data = await res.json();
   const rawRows: unknown[][] = data.data?.rows ?? [];
@@ -95,6 +91,19 @@ ORDER BY Impressions DESC`;
     return row;
   });
 
+  return { rows };
+}
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl;
+  const campaigns = parseList(searchParams.get("campaign"));
+  const channels  = parseList(searchParams.get("channel"));
+  const dateStart = searchParams.get("dateStart") ?? "";
+  const dateEnd   = searchParams.get("dateEnd")   ?? "";
+
+  const result = await fetchRows(campaigns, channels, dateStart, dateEnd);
+  if ("error" in result) return NextResponse.json({ error: result.error }, { status: 500 });
+
   // No CDN cache — campaign/channel filters change results per request.
-  return NextResponse.json({ rows }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({ rows: result.rows }, { headers: { "Cache-Control": "no-store" } });
 }

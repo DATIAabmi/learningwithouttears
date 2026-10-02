@@ -10,7 +10,6 @@ import { exportToCsv } from "@/lib/exportCsv";
 import { channelColor } from "@/lib/channelColors";
 import DonutBreakdown from "@/components/DonutBreakdown";
 import { exportDivToPng } from "@/lib/exportChartToPng";
-import { useRegisterCsvExport } from "@/components/ExportContext";
 
 // ─── Metric Description modal ──────────────────────────────────────────────────
 
@@ -288,25 +287,29 @@ function GatedContentTable({ campaign, dateStart, dateEnd, channel }: { campaign
   const totalClicks = rows.reduce((s, r) => s + (Number(r[5]) || 0), 0);
   const totalCtr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) + "%" : "—";
 
-  // Export skips the Image column (a thumbnail URL, not useful in a
-  // spreadsheet) — Asset Name/Link/Campaign/Impressions/Clicks/CTR mirror
-  // what's shown on screen, respecting the active channel filter.
-  const EXPORT_COLS = [
-    { display_name: "Asset Name" },
-    { display_name: "Asset Link" },
-    { display_name: "Campaign" },
-    { display_name: "Impressions" },
-    { display_name: "Clicks" },
-    { display_name: "CTR" },
-  ];
-  useRegisterCsvExport(() =>
-    exportToCsv("content-insights-gated-content", EXPORT_COLS, rows.map((r) => [r[1], r[2], r[3], r[4], r[5], r[6]])),
-  );
-
   return (
     <div className="rounded-xl border border-gray-200 shadow-sm" style={{ clipPath: "inset(0 round 0.75rem)" }}>
-      <div ref={titleBarRef} className="sticky top-0 z-20 bg-gray-900 text-white px-5 py-3">
+      <div ref={titleBarRef} className="sticky top-0 z-20 bg-gray-900 text-white px-5 py-3 flex items-center justify-between">
         <span className="font-bold text-sm tracking-wide uppercase">Gated Content Engagements</span>
+        {!loading && sorted.length > 0 && (
+          <button
+            onClick={() => {
+              const exportCols = [
+                { display_name: "Asset Name" },
+                { display_name: "Asset Link" },
+                { display_name: "Campaign" },
+                { display_name: "Impressions" },
+                { display_name: "Clicks" },
+                { display_name: "CTR" },
+              ];
+              const exportRows = sorted.map((r) => [r[1], r[2], r[3], r[4], r[5], r[6]]);
+              exportToCsv("DATIA ABMxi-content-Insights", exportCols, exportRows);
+            }}
+            className="flex items-center gap-1.5 text-xs text-gray-300 hover:text-white transition-colors"
+          >
+            <Download size={13} /> Export
+          </button>
+        )}
       </div>
 
       {loading && (
