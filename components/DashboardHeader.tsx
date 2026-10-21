@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { CalendarSearch, X, RotateCcw, LogOut, FileSpreadsheet, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFilter } from "@/components/FilterContext";
 import { CAMPAIGNS, campaignDateRange } from "@/lib/campaigns";
@@ -10,13 +9,10 @@ import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 
 export default function DashboardHeader({ legend, onExport }: { legend?: string; onExport?: () => Promise<void> }) {
   const { campaign, setCampaign, dateStart, dateEnd, setDateStart, setDateEnd, resetAll } = useFilter();
-  const router = useRouter();
   const [exporting, setExporting] = useState(false);
 
-  async function handleSignOut() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-    router.refresh();
+  function handleSignOut() {
+    window.location.href = "/api/auth/logout";
   }
 
   async function handleExport() {
