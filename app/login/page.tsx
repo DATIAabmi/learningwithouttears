@@ -1,69 +1,19 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Suspense } from "react";
-import { DEFAULT_CAMPAIGN } from "@/lib/campaigns";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get("from") ?? "/";
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const error = searchParams.get("error") ?? "";
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError("");
+  function handleSignIn() {
     setLoading(true);
-
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error ?? "Login failed");
-        setLoading(false);
-        return;
-      }
-
-      // Warm the most important endpoints immediately, then stagger the rest
-      // so we don't fire 12 simultaneous Metabase queries on login.
-      const c = encodeURIComponent(DEFAULT_CAMPAIGN);
-      const priority = [
-        `/api/funnel-data?campaign=${c}`,
-        `/api/q363-data?campaign=${c}`,
-        `/api/q180-data`,
-        `/api/q405-data?campaign=${c}`,
-      ];
-      const deferred = [
-        `/api/q425-data?campaign=${c}`,
-        `/api/leads-summary?campaign=${c}`,
-        `/api/q174-data?campaign=${c}`,
-        `/api/q181-data?campaign=${c}`,
-        `/api/content-data?campaign=${c}`,
-        `/api/q168-data?campaign=${c}`,
-        `/api/q169-data?campaign=${c}`,
-        `/api/ai-signals-data`,
-      ];
-      priority.forEach((url) => fetch(url).catch(() => {}));
-      setTimeout(() => deferred.forEach((url) => fetch(url).catch(() => {})), 2000);
-
-      router.push(from);
-      router.refresh();
-    } catch {
-      setError("Network error — please try again");
-      setLoading(false);
-    }
+    window.location.href = `/api/auth/login?from=${encodeURIComponent(from)}`;
   }
 
   return (
@@ -98,61 +48,7 @@ function LoginForm() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "#374151", marginBottom: 6 }}>
-                Metabase Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                placeholder="you@example.com"
-                style={{
-                  width: "100%",
-                  padding: "10px 14px",
-                  borderRadius: 10,
-                  border: "1.5px solid #e5e7eb",
-                  fontSize: 14,
-                  color: "#111827",
-                  outline: "none",
-                  boxSizing: "border-box",
-                  transition: "border-color 0.15s",
-                }}
-                onFocus={(e) => { e.target.style.borderColor = "#3b82f6"; }}
-                onBlur={(e) => { e.target.style.borderColor = "#e5e7eb"; }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "#374151", marginBottom: 6 }}>
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-                placeholder="••••••••"
-                style={{
-                  width: "100%",
-                  padding: "10px 14px",
-                  borderRadius: 10,
-                  border: "1.5px solid #e5e7eb",
-                  fontSize: 14,
-                  color: "#111827",
-                  outline: "none",
-                  boxSizing: "border-box",
-                  transition: "border-color 0.15s",
-                }}
-                onFocus={(e) => { e.target.style.borderColor = "#3b82f6"; }}
-                onBlur={(e) => { e.target.style.borderColor = "#e5e7eb"; }}
-              />
-            </div>
-
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {error && (
               <div style={{
                 background: "#fef2f2",
@@ -167,7 +63,8 @@ function LoginForm() {
             )}
 
             <button
-              type="submit"
+              type="button"
+              onClick={handleSignIn}
               disabled={loading}
               style={{
                 marginTop: 4,
@@ -183,12 +80,12 @@ function LoginForm() {
                 letterSpacing: "0.02em",
               }}
             >
-              {loading ? "Signing in…" : "Sign in"}
+              {loading ? "Redirecting…" : "Sign in with Auth0"}
             </button>
-          </form>
+          </div>
 
           <p style={{ marginTop: 20, textAlign: "center", fontSize: 12, color: "#9ca3af" }}>
-            Use your Metabase account credentials
+            Secured by Auth0
           </p>
         </div>
       </div>

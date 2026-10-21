@@ -10,7 +10,7 @@ export interface SessionUser {
   groups: string[];
 }
 
-function getSecret() {
+export function getSecret() {
   const s = process.env.AUTH_SECRET;
   if (!s) throw new Error("AUTH_SECRET env var is not set");
   return new TextEncoder().encode(s);
